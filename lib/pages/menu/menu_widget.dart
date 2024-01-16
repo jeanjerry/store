@@ -84,7 +84,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                 alignment: AlignmentDirectional(0.0, 0.0),
                 child: FFButtonWidget(
                   onPressed: () async {
-                    context.safePop();
+                    context.pushNamed('meun-1');
                   },
                   text: '編輯與生成菜單',
                   options: FFButtonOptions(

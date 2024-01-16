@@ -90,11 +90,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => MessageWidget(),
         ),
         FFRoute(
-          name: 'message-1',
-          path: '/message1',
-          builder: (context, params) => Message1Widget(),
-        ),
-        FFRoute(
           name: 'menu',
           path: '/menu',
           builder: (context, params) =>

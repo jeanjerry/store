@@ -685,10 +685,10 @@ class _SettingWidgetState extends State<SettingWidget> {
                       alignment: AlignmentDirectional(0.0, 0.05),
                       child: Padding(
                         padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
+                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 15.0),
                         child: FFButtonWidget(
-                          onPressed: () {
-                            print('Button pressed ...');
+                          onPressed: () async {
+                            context.safePop();
                           },
                           text: '更新',
                           options: FFButtonOptions(
@@ -719,7 +719,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                       alignment: AlignmentDirectional(0.0, 0.05),
                       child: Padding(
                         padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
+                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 15.0),
                         child: FFButtonWidget(
                           onPressed: () async {
                             Navigator.pop(context);

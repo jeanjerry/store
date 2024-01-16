@@ -130,7 +130,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                           hoverColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           onTap: () async {
-                            context.pushNamed('order-1');
+                            context.pushNamed('home-1');
                           },
                           child: Column(
                             mainAxisSize: MainAxisSize.max,
