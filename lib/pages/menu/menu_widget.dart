@@ -1,115 +1,75 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'menu_model.dart';
-export 'menu_model.dart';
+import 'package:store/pages/menu_1/menu1_widget.dart';
 
 class MenuWidget extends StatefulWidget {
-  const MenuWidget({Key? key}) : super(key: key);
+  const MenuWidget({super.key});
 
   @override
-  _MenuWidgetState createState() => _MenuWidgetState();
+  State<MenuWidget> createState() => _MenuWidgetState();
 }
 
 class _MenuWidgetState extends State<MenuWidget> {
-  late MenuModel _model;
-
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => MenuModel());
+    initializeData(); // 呼叫自定義的初始化方法
   }
 
-  @override
-  void dispose() {
-    _model.dispose();
-
-    super.dispose();
-  }
+  Future<void> initializeData() async {}
 
   @override
   Widget build(BuildContext context) {
-    if (isiOS) {
-      SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(
-          statusBarBrightness: Theme.of(context).brightness,
-          systemStatusBarContrastEnforced: true,
-        ),
-      );
-    }
+    const titleStyle = TextStyle(
+      fontSize: 40,
+      fontWeight: FontWeight.w600,
+    );
 
-    context.watch<FFAppState>();
-
-    return GestureDetector(
-      onTap: () => _model.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
-          : FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-          automaticallyImplyLeading: false,
-          title: Align(
-            alignment: AlignmentDirectional(0.0, -1.0),
-            child: Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 30.0),
-              child: AutoSizeText(
-                'Blofood',
-                textAlign: TextAlign.start,
-                style: FlutterFlowTheme.of(context).displaySmall.override(
-                      fontFamily: 'Outfit',
-                      color: Color(0xFFF35E5E),
-                    ),
-              ),
-            ),
-          ),
-          actions: [],
-          centerTitle: false,
-          elevation: 0.0,
-        ),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
+    return Scaffold(
+      body: Stack(
+        children: [
+          ListView(
             children: [
-              Align(
-                alignment: AlignmentDirectional(0.0, 0.0),
-                child: FFButtonWidget(
-                  onPressed: () async {
-                    context.pushNamed('meun-1');
-                  },
-                  text: '編輯與生成菜單',
-                  options: FFButtonOptions(
-                    height: 40.0,
-                    padding:
-                        EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
-                    iconPadding:
-                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                    color: FlutterFlowTheme.of(context).primary,
-                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                          fontFamily: 'Readex Pro',
-                          color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 30, top: 30, right: 30, bottom: 120),
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Text("Blo",
+                                    style: titleStyle.copyWith(
+                                        color: Colors.red[900])),
+                                Text("food",
+                                    style: titleStyle.copyWith(
+                                        color: Colors.black87)),
+                              ],
+                            ),
+                          ],
                         ),
-                    elevation: 3.0,
-                    borderSide: BorderSide(
-                      color: Colors.transparent,
-                      width: 1.0,
+                      ],
                     ),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
+                    const SizedBox(height: 30),
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const Menu1Widget(),
+                          ),
+                        );
+                      },
+                      child: const Text("進入頁面測試"),
+                    ),
+                  ],
                 ),
-              ),
+              )
             ],
           ),
-        ),
+        ],
       ),
     );
   }

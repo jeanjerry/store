@@ -8,4 +8,4 @@ export '/pages/wallet/wallet_widget.dart' show WalletWidget;
 export '/pages/setting/setting_widget.dart' show SettingWidget;
 export '/pages/message/message_widget.dart' show MessageWidget;
 export '/pages/menu/menu_widget.dart' show MenuWidget;
-export '/pages/meun_1/meun1_widget.dart' show Meun1Widget;
+export '/pages/menu_1/menu1_widget.dart' show Menu1Widget;
