@@ -25,13 +25,13 @@ class _MenuWidgetState extends State<MenuWidget> {
   late SharedPreferences prefs;
 
   // 宣告csv檔
-  late List<List<dynamic>> csvData = [];
-  late List<List<List<dynamic>>> meal = [];
-  late List<List<List<dynamic>>> comboMeal = [];
-  late List<List<List<dynamic>>> option = [];
-  late Map<String, dynamic> mealClassification = {};
-  late Map<String, dynamic> comboMealClassification = {};
-  late Map<String, dynamic> optionClassification = {};
+  List<List<dynamic>> csvData = [];
+  List<List<List<dynamic>>> meal = [];
+  List<List<List<dynamic>>> comboMeal = [];
+  List<List<List<dynamic>>> option = [];
+  Map<String, dynamic> mealClassification = {};
+  Map<String, dynamic> comboMealClassification = {};
+  Map<String, dynamic> optionClassification = {};
 
   bool isLoading = false;
   late String menuPath;
@@ -69,9 +69,9 @@ class _MenuWidgetState extends State<MenuWidget> {
     optionClassification = csvClassification(option);
 
     if (kDebugMode) {
-      print(mealClassification);
-      print(comboMealClassification);
-      print(optionClassification);
+      print("mealClassification:$mealClassification");
+      print("comboMealClassification:$comboMealClassification");
+      print("optionClassification:$optionClassification");
     }
 
     setState(() {
@@ -507,7 +507,6 @@ class _MenuWidgetState extends State<MenuWidget> {
     }
 
     if (localMenuVersion.toString() != remoteMenuVersion.toString()) {
-      // 刪除原本的菜單
       Directory menuDirectory = Directory(menuPath);
       if (menuDirectory.existsSync()) {
         menuDirectory.deleteSync(recursive: true);
@@ -520,8 +519,16 @@ class _MenuWidgetState extends State<MenuWidget> {
       }
       await GoogleHelper.driveDownloadMenu(menuLink, menuPath);
       await setLocalMenuVersion(remoteMenuVersion.toString());
-    }
 
-    await initializeData();
+      // 清空資料
+      csvData.clear();
+      meal.clear();
+      comboMeal.clear();
+      option.clear();
+      mealClassification.clear();
+      comboMealClassification.clear();
+      optionClassification.clear();
+      await initializeData();
+    }
   }
 }
