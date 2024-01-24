@@ -29,9 +29,6 @@ class _MenuWidgetState extends State<MenuWidget> {
   List<List<List<dynamic>>> meal = [];
   List<List<List<dynamic>>> comboMeal = [];
   List<List<List<dynamic>>> option = [];
-  Map<String, dynamic> mealClassification = {};
-  Map<String, dynamic> comboMealClassification = {};
-  Map<String, dynamic> optionClassification = {};
 
   bool isLoading = false;
   late String menuPath;
@@ -64,15 +61,6 @@ class _MenuWidgetState extends State<MenuWidget> {
     }
 
     csvProcess(csvData);
-    mealClassification = csvClassification(meal);
-    comboMealClassification = csvClassification(comboMeal);
-    optionClassification = csvClassification(option);
-
-    if (kDebugMode) {
-      print("mealClassification:$mealClassification");
-      print("comboMealClassification:$comboMealClassification");
-      print("optionClassification:$optionClassification");
-    }
 
     setState(() {
       isLoading = false;
@@ -525,9 +513,7 @@ class _MenuWidgetState extends State<MenuWidget> {
       meal.clear();
       comboMeal.clear();
       option.clear();
-      mealClassification.clear();
-      comboMealClassification.clear();
-      optionClassification.clear();
+
       await initializeData();
     }
   }
