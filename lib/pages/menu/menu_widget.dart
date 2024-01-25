@@ -7,7 +7,6 @@ import 'dart:convert';
 import 'package:csv/csv.dart';
 import 'dart:io';
 import 'dart:ui';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../api.dart';
 
@@ -22,13 +21,15 @@ class _MenuWidgetState extends State<MenuWidget> {
   String contractAddress = "0x04EcFde8eb5cD3e4283E76bA380c187a0b8FC57c";
   String account = "0xe9d6410ed4ff7a317ca0428a85547addb9c9b8d2";
   String password = "0";
-  late SharedPreferences prefs;
 
   // 宣告csv檔
   List<List<dynamic>> csvData = [];
   List<List<List<dynamic>>> meal = [];
   List<List<List<dynamic>>> comboMeal = [];
   List<List<List<dynamic>>> option = [];
+  Map<String, dynamic> mealClassification = {};
+  Map<String, dynamic> comboMealClassification = {};
+  Map<String, dynamic> optionClassification = {};
 
   bool isLoading = false;
   late String menuPath;
@@ -43,7 +44,6 @@ class _MenuWidgetState extends State<MenuWidget> {
     setState(() {
       isLoading = true;
     });
-    prefs = await SharedPreferences.getInstance();
     // 讀取csv檔
     menuPath = "/data/data/com.mycompany.store/menu";
     Directory menuDirectory = Directory(menuPath);
@@ -61,18 +61,13 @@ class _MenuWidgetState extends State<MenuWidget> {
     }
 
     csvProcess(csvData);
+    mealClassification = csvClassification(meal);
+    comboMealClassification = csvClassification(comboMeal);
+    optionClassification = csvClassification(option);
 
     setState(() {
       isLoading = false;
     });
-  }
-
-  setLocalMenuVersion(String version) async {
-    prefs.setString('menuVersion', version);
-  }
-
-  getLocalMenuVersion() async {
-    return prefs.getString('menuVersion');
   }
 
   @override
@@ -133,7 +128,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                       onPressed: () async {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const Menu1Widget(),
+                            builder: (context) => Menu1Widget(),
                           ),
                         );
                       },
@@ -155,12 +150,12 @@ class _MenuWidgetState extends State<MenuWidget> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildMenuCategory(
-                              "單點", meal, Colors.red[100]!, Colors.red),
-                          _buildMenuCategory("套餐", comboMeal,
+                          _buildMenuCategory("單點", mealClassification,
+                              Colors.red[100]!, Colors.red),
+                          _buildMenuCategory("套餐", comboMealClassification,
                               Colors.green[100]!, Colors.green),
-                          _buildMenuCategory(
-                              "選項", option, Colors.blue[100]!, Colors.blue),
+                          _buildMenuCategory("選項", optionClassification,
+                              Colors.blue[100]!, Colors.blue),
                         ],
                       ),
                     if (csvData.isEmpty && !isLoading)
@@ -198,11 +193,13 @@ class _MenuWidgetState extends State<MenuWidget> {
 
   Widget _buildMenuCategory(
       String categoryName,
-      List<List<List<dynamic>>> categoryList,
+      Map<String, dynamic> categoryClassification,
       Color cardColor,
       Color splashColor) {
-    Map<String, dynamic> categoryClassification =
-        csvClassification(categoryList);
+    if (kDebugMode) {
+      print("categoryName: $categoryName");
+      print("categoryClassification: $categoryClassification");
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,12 +229,12 @@ class _MenuWidgetState extends State<MenuWidget> {
   Widget _buildCategoryItem(Map<String, dynamic> categoryClassification,
       int index, Color cardColor, Color splashColor, String categoryName) {
     String key = categoryClassification.keys.toList()[index];
-    List<List<List<dynamic>>> categoryItems = categoryClassification[key];
+    List<dynamic> categoryItems = categoryClassification[key];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (key != "" && key != categoryName)
+        if (key != "")
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -475,6 +472,7 @@ class _MenuWidgetState extends State<MenuWidget> {
 
   csvClassification(List<List<List<dynamic>>> data) {
     Map<String, dynamic> classification = {};
+    classification[""] = [];
     for (int i = 0; i < data.length; i++) {
       if (classification.containsKey(data[i][0][1])) {
         classification[data[i][0][1]].add(data[i]);
@@ -486,35 +484,31 @@ class _MenuWidgetState extends State<MenuWidget> {
   }
 
   refreshMenu() async {
-    var localMenuVersion = await getLocalMenuVersion();
-    var remoteMenuVersion = await getMenuVersion(contractAddress, account);
+    var menuVersion = await getMenuVersion(contractAddress, account);
 
+    Directory menuDirectory = Directory(menuPath);
+    if (menuDirectory.existsSync()) {
+      menuDirectory.deleteSync(recursive: true);
+    }
+    menuDirectory.createSync(recursive: true);
+
+    var menuLink = await getMenu(contractAddress, account, menuVersion);
     if (kDebugMode) {
-      print("localMenuVersion: $localMenuVersion");
-      print("remoteMenuVersion: $remoteMenuVersion");
+      print("menuLink: $menuLink");
     }
 
-    if (localMenuVersion.toString() != remoteMenuVersion.toString()) {
-      Directory menuDirectory = Directory(menuPath);
-      if (menuDirectory.existsSync()) {
-        menuDirectory.deleteSync(recursive: true);
-      }
-      menuDirectory.createSync(recursive: true);
-
-      var menuLink = await getMenu(contractAddress, account, remoteMenuVersion);
-      if (kDebugMode) {
-        print("menuLink: $menuLink");
-      }
+    try {
       await GoogleHelper.driveDownloadMenu(menuLink, menuPath);
-      await setLocalMenuVersion(remoteMenuVersion.toString());
-
-      // 清空資料
-      csvData.clear();
-      meal.clear();
-      comboMeal.clear();
-      option.clear();
-
-      await initializeData();
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
+    // 清空資料
+    csvData.clear();
+    meal.clear();
+    comboMeal.clear();
+    option.clear();
+    await initializeData();
   }
 }
