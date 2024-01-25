@@ -128,7 +128,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                       onPressed: () async {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => Menu1Widget(),
+                            builder: (context) => const Menu1Widget(),
                           ),
                         );
                       },

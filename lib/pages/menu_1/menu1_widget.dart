@@ -64,6 +64,12 @@ class _Menu1WidgetState extends State<Menu1Widget> {
     comboMealClassification = csvClassification(comboMeal);
     optionClassification = csvClassification(option);
 
+    if (kDebugMode) {
+      print("mealClassification: $mealClassification");
+      print("comboMealClassification: $comboMealClassification");
+      print("optionClassification: $optionClassification");
+    }
+
     setState(() {
       isLoading = false;
     });
@@ -151,7 +157,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
         ),
         ElevatedButton(
             onPressed: () {},
-            child: Text("新增類別", style: TextStyle(color: Colors.blue))),
+            child: const Text("新增類別", style: TextStyle(color: Colors.blue))),
         const SizedBox(height: 15),
       ],
     );
@@ -187,7 +193,8 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                         }
                         setState(() {});
                       },
-                      child: Text("刪除類別", style: TextStyle(color: Colors.red)))
+                      child: const Text("刪除類別",
+                          style: TextStyle(color: Colors.red)))
                 ],
               ),
               const SizedBox(height: 15),
@@ -205,7 +212,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
         Center(
           child: IconButton(
             onPressed: () {},
-            icon: Icon(Icons.add_circle),
+            icon: const Icon(Icons.add_circle),
             color: Colors.blue,
           ),
         ),
@@ -319,7 +326,8 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                                         Center(
                                             child: IconButton(
                                                 onPressed: () {},
-                                                icon: Icon(Icons.edit_rounded),
+                                                icon: const Icon(
+                                                    Icons.edit_rounded),
                                                 color: Colors.green)),
                                         Center(
                                           child: IconButton(
@@ -341,7 +349,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                                                 setState(() {});
                                                 if (kDebugMode) {
                                                   print(
-                                                      "mealClassification: ${mealClassification}");
+                                                      "mealClassification: $mealClassification");
                                                 }
                                               } else if (categoryName == "套餐") {
                                                 if (categoryClassification[key]
@@ -360,7 +368,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                                                 setState(() {});
                                                 if (kDebugMode) {
                                                   print(
-                                                      "comboMealClassification: ${comboMealClassification}");
+                                                      "comboMealClassification: $comboMealClassification");
                                                 }
                                               } else if (categoryName == "選項") {
                                                 if (categoryClassification[key]
@@ -379,13 +387,14 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                                                 setState(() {});
                                                 if (kDebugMode) {
                                                   print(
-                                                      "optionClassification: ${optionClassification}");
+                                                      "optionClassification: $optionClassification");
                                                 }
                                               }
                                               setState(() {});
                                               setStateBottomSheet(() {});
                                             },
-                                            icon: Icon(Icons.remove_circle),
+                                            icon:
+                                                const Icon(Icons.remove_circle),
                                             color: Colors.red,
                                           ),
                                         ),
@@ -397,7 +406,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                               ),
                               IconButton(
                                   onPressed: () {},
-                                  icon: Icon(Icons.add_circle),
+                                  icon: const Icon(Icons.add_circle),
                                   color: Colors.blue),
                             ],
                           )),
@@ -511,6 +520,9 @@ class _Menu1WidgetState extends State<Menu1Widget> {
     Map<String, dynamic> classification = {};
     classification[""] = [];
     for (int i = 0; i < data.length; i++) {
+      for (int j = 0; j < data[i].length; j++) {
+        data[i][j][2] = "";
+      }
       if (classification.containsKey(data[i][0][1])) {
         classification[data[i][0][1]].add(data[i]);
       } else {
