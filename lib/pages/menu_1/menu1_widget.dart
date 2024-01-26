@@ -111,7 +111,80 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                       child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                           child: InkWell(
-                            onTap: () async {},
+                            onTap: () async {
+                              if (kDebugMode) {
+                                print(
+                                    "mealClassification: $mealClassification");
+                                print(
+                                    "comboMealClassification: $comboMealClassification");
+                                print(
+                                    "optionClassification: $optionClassification");
+                              }
+                              List<List<dynamic>> csvData = [];
+                              for (int i = 0;
+                                  i < mealClassification.length;
+                                  i++) {
+                                for (int j = 0;
+                                    j <
+                                        mealClassification.values
+                                            .toList()[i]
+                                            .length;
+                                    j++) {
+                                  for (int k = 0;
+                                      k <
+                                          mealClassification.values
+                                              .toList()[i][j]
+                                              .length;
+                                      k++) {
+                                    csvData.add(mealClassification.values
+                                        .toList()[i][j][k]);
+                                  }
+                                }
+                              }
+                              for (int i = 0;
+                                  i < comboMealClassification.length;
+                                  i++) {
+                                for (int j = 0;
+                                    j <
+                                        comboMealClassification.values
+                                            .toList()[i]
+                                            .length;
+                                    j++) {
+                                  for (int k = 0;
+                                      k <
+                                          comboMealClassification.values
+                                              .toList()[i][j]
+                                              .length;
+                                      k++) {
+                                    csvData.add(comboMealClassification.values
+                                        .toList()[i][j][k]);
+                                  }
+                                }
+                              }
+                              for (int i = 0;
+                                  i < optionClassification.length;
+                                  i++) {
+                                for (int j = 0;
+                                    j <
+                                        optionClassification.values
+                                            .toList()[i]
+                                            .length;
+                                    j++) {
+                                  for (int k = 0;
+                                      k <
+                                          optionClassification.values
+                                              .toList()[i][j]
+                                              .length;
+                                      k++) {
+                                    csvData.add(optionClassification.values
+                                        .toList()[i][j][k]);
+                                  }
+                                }
+                              }
+                              if (kDebugMode) {
+                                print("csvData: $csvData");
+                              }
+                            },
                             splashColor: Colors.black,
                             child: Container(
                                 color: Colors.black.withOpacity(0.7),
@@ -156,7 +229,9 @@ class _Menu1WidgetState extends State<Menu1Widget> {
           ),
         ),
         ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              addClassification(categoryName);
+            },
             child: const Text("新增類別", style: TextStyle(color: Colors.blue))),
         const SizedBox(height: 15),
       ],
@@ -184,13 +259,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                   const SizedBox(width: 18),
                   ElevatedButton(
                       onPressed: () {
-                        if (categoryName == "單點") {
-                          mealClassification.remove(key);
-                        } else if (categoryName == "套餐") {
-                          comboMealClassification.remove(key);
-                        } else if (categoryName == "選項") {
-                          optionClassification.remove(key);
-                        }
+                        removeClassification(categoryName, key);
                         setState(() {});
                       },
                       child: const Text("刪除類別",
@@ -211,7 +280,9 @@ class _Menu1WidgetState extends State<Menu1Widget> {
         ),
         Center(
           child: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              addFirstItem(categoryName, key);
+            },
             icon: const Icon(Icons.add_circle),
             color: Colors.blue,
           ),
@@ -227,6 +298,9 @@ class _Menu1WidgetState extends State<Menu1Widget> {
       String categoryName,
       String key,
       int index2) {
+    if (kDebugMode) {
+      print("categoryClassification[key]: ${categoryClassification[key]}");
+    }
     return Card(
       color: cardColor,
       clipBehavior: Clip.hardEdge,
@@ -324,76 +398,14 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                                             ),
                                           ),
                                         Center(
-                                            child: IconButton(
-                                                onPressed: () {},
-                                                icon: const Icon(
-                                                    Icons.edit_rounded),
-                                                color: Colors.green)),
-                                        Center(
                                           child: IconButton(
                                             onPressed: () {
-                                              if (categoryClassification[key]
-                                                      [index2][index][6] !=
-                                                  "") {
-                                                File("$menuPath/${categoryClassification[key][index2][index][6]}")
-                                                    .deleteSync();
-                                              }
-                                              if (categoryName == "單點") {
-                                                if (categoryClassification[key]
-                                                            [index2]
-                                                        .length ==
-                                                    1) {
-                                                  mealClassification[key]
-                                                      .removeAt(index2);
-
-                                                  Navigator.pop(context);
-                                                } else {
-                                                  mealClassification[key]
-                                                          [index2]
-                                                      .removeAt(index);
-                                                }
-                                                if (kDebugMode) {
-                                                  print(
-                                                      "mealClassification: $mealClassification");
-                                                }
-                                              } else if (categoryName == "套餐") {
-                                                if (categoryClassification[key]
-                                                            [index2]
-                                                        .length ==
-                                                    1) {
-                                                  comboMealClassification[key]
-                                                      .removeAt(index2);
-
-                                                  Navigator.pop(context);
-                                                } else {
-                                                  comboMealClassification[key]
-                                                          [index2]
-                                                      .removeAt(index);
-                                                }
-                                                if (kDebugMode) {
-                                                  print(
-                                                      "comboMealClassification: $comboMealClassification");
-                                                }
-                                              } else if (categoryName == "選項") {
-                                                if (categoryClassification[key]
-                                                            [index2]
-                                                        .length ==
-                                                    1) {
-                                                  optionClassification[key]
-                                                      .removeAt(index2);
-
-                                                  Navigator.pop(context);
-                                                } else {
-                                                  optionClassification[key]
-                                                          [index2]
-                                                      .removeAt(index);
-                                                }
-                                                if (kDebugMode) {
-                                                  print(
-                                                      "optionClassification: $optionClassification");
-                                                }
-                                              }
-                                              setState(() {});
+                                              removeItem(
+                                                  categoryName,
+                                                  key,
+                                                  index,
+                                                  categoryClassification,
+                                                  index2);
                                               setStateBottomSheet(() {});
                                             },
                                             icon:
@@ -408,7 +420,10 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                                 },
                               ),
                               IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    addItem(categoryName, key, index2,
+                                        categoryClassification);
+                                  },
                                   icon: const Icon(Icons.add_circle),
                                   color: Colors.blue),
                             ],
@@ -541,5 +556,492 @@ class _Menu1WidgetState extends State<Menu1Widget> {
         .transform(utf8.decoder)
         .transform(const CsvToListConverter())
         .toList();
+  }
+
+  removeClassification(String categoryName, String key) {
+    if (categoryName == "單點") {
+      mealClassification.remove(key);
+    } else if (categoryName == "套餐") {
+      comboMealClassification.remove(key);
+    } else if (categoryName == "選項") {
+      optionClassification.remove(key);
+    }
+  }
+
+  addClassification(String categoryName) {
+    TextEditingController classificationName = TextEditingController();
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("新增類別"),
+            content: TextField(
+              controller: classificationName,
+              decoration:
+                  const InputDecoration(hintText: "請輸入類別名稱", labelText: "類別名稱"),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("取消")),
+              TextButton(
+                  onPressed: () {
+                    if (categoryName == "單點") {
+                      mealClassification[classificationName.text] = [];
+                    } else if (categoryName == "套餐") {
+                      comboMealClassification[classificationName.text] = [];
+                    } else if (categoryName == "選項") {
+                      optionClassification[classificationName.text] = [];
+                    }
+                    Navigator.pop(context);
+                  },
+                  child: const Text("確認"))
+            ],
+          );
+        });
+    setState(() {});
+  }
+
+  addFirstItem(String categoryName, String key) {
+    TextEditingController itemName = TextEditingController();
+    TextEditingController itemOption = TextEditingController();
+    TextEditingController itemPrice = TextEditingController();
+    showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setDialogState) {
+            return AlertDialog(
+              title: const Text("新增項目"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  // 選取照片
+                  ElevatedButton(
+                      onPressed: () async {}, child: const Text("選取照片")),
+                  const SizedBox(height: 15),
+                  // 輸入項目名稱
+                  TextField(
+                    controller: itemName,
+                    decoration: const InputDecoration(
+                        hintText: "請輸入項目名稱", labelText: "項目名稱"),
+                  ),
+                  // 輸入項目選項
+                  TextField(
+                    controller: itemOption,
+                    decoration: const InputDecoration(
+                        hintText: "請輸入項目選項", labelText: "項目選項"),
+                  ),
+                  const SizedBox(height: 15),
+                  // 輸入項目價格
+                  TextField(
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (value) {
+                      if (value.startsWith("0") &&
+                          value.length > 1 &&
+                          value[1] != ".") {
+                        // 如果輸入以0開頭且長度大於1，去掉開頭的0
+                        value = value.substring(1);
+                      }
+                      if (!isValidDouble(value)) {
+                        setDialogState(() {
+                          itemPrice.text = "";
+                        });
+                      } else {
+                        setDialogState(() {
+                          itemPrice.text = value;
+                        });
+                      }
+                    },
+                    controller: itemPrice,
+                    decoration: const InputDecoration(
+                        hintText: "請輸入項目價格", labelText: "項目價格"),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("取消")),
+                TextButton(
+                    onPressed: () {
+                      if (checkSameItemName(categoryName, key, itemName.text) ==
+                          true) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("錯誤"),
+                                content: const Text("不得輸入已有的項目名稱"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("確認"))
+                                ],
+                              );
+                            });
+                      } else if (itemName.text == "") {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("錯誤"),
+                                content: const Text("請輸入項目名稱"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("確認"))
+                                ],
+                              );
+                            });
+                      } else if (itemPrice.text == "") {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("錯誤"),
+                                content: const Text("請輸入項目價格"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("確認"))
+                                ],
+                              );
+                            });
+                      } else {
+                        // 如果有圖片，複製到指定位置並重新命名
+                        var pictureName = "";
+                        // 將項目加入到對應的類別中
+                        if (categoryName == "單點") {
+                          mealClassification[key].add([
+                            [
+                              1, // 類別
+                              key, // 單點類別
+                              "",
+                              itemName.text, // 單點名稱
+                              itemOption.text, // 單點選項
+                              itemPrice.text, // 單點價格
+                              pictureName // 圖片名稱
+                            ]
+                          ]);
+                        } else if (categoryName == "套餐") {
+                          comboMealClassification[key].add([
+                            [
+                              2, // 類別
+                              key, // 套餐類別
+                              "",
+                              itemName.text, // 套餐名稱
+                              itemOption.text, // 套餐選項
+                              itemPrice.text, // 套餐價格
+                              pictureName // 圖片名稱
+                            ]
+                          ]);
+                        } else if (categoryName == "選項") {
+                          optionClassification[key].add([
+                            [
+                              3, // 類別
+                              key, // 選項類別
+                              "",
+                              itemName.text, // 選項名稱
+                              itemOption.text, // 選項的選項
+                              itemPrice.text, // 選項價格
+                              pictureName // 圖片名稱
+                            ]
+                          ]);
+                        }
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text("確認"))
+              ],
+            );
+          });
+        });
+    setState(() {});
+  }
+
+  addItem(String categoryName, String key, int index2,
+      Map<String, dynamic> categoryClassification) {
+    TextEditingController itemOption = TextEditingController();
+    TextEditingController itemPrice = TextEditingController();
+    showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setDialogState) {
+            return AlertDialog(
+              title: const Text("新增項目"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  // 選取照片
+                  ElevatedButton(
+                      onPressed: () async {}, child: const Text("選取照片")),
+                  const SizedBox(height: 15),
+                  //顯示項目名稱
+                  TextField(
+                    controller: TextEditingController(
+                        text: categoryClassification[key][index2][0][3]),
+                    enabled: false,
+                    decoration: const InputDecoration(
+                        hintText: "請輸入項目名稱", labelText: "項目名稱"),
+                  ),
+                  // 輸入項目選項
+                  TextField(
+                    controller: itemOption,
+                    decoration: const InputDecoration(
+                        hintText: "請輸入項目選項", labelText: "項目選項"),
+                  ),
+                  const SizedBox(height: 15),
+                  // 輸入項目價格
+                  TextField(
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (text) {
+                      if (text.startsWith("0") &&
+                          text.length > 1 &&
+                          text[1] != ".") {
+                        // 如果輸入以0開頭且長度大於1，去掉開頭的0
+                        text = text.substring(1);
+                      }
+                      if (!isValidDouble(text)) {
+                        setDialogState(() {
+                          itemPrice.text = "";
+                        });
+                      } else {
+                        setDialogState(() {
+                          itemPrice.text = text;
+                        });
+                      }
+                    },
+                    controller: itemPrice,
+                    decoration: const InputDecoration(
+                        hintText: "請輸入項目價格", labelText: "項目價格"),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("取消")),
+                TextButton(
+                    onPressed: () {
+                      if (checkSameOptionName(
+                              categoryName, key, index2, itemOption.text) ==
+                          true) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("錯誤"),
+                                content: const Text("不得輸入已有的項目名稱"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("確認"))
+                                ],
+                              );
+                            });
+                      } else if (itemOption.text == "") {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("錯誤"),
+                                content: const Text("請輸入項目選項"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("確認"))
+                                ],
+                              );
+                            });
+                      } else if (itemPrice.text == "") {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("錯誤"),
+                                content: const Text("請輸入項目價格"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("確認"))
+                                ],
+                              );
+                            });
+                      } else {
+                        // 如果有圖片，複製到指定位置並重新命名
+                        var pictureName = "";
+                        // 將項目加入到對應的類別中
+                        if (categoryName == "單點") {
+                          mealClassification[key][index2].add([
+                            1.toString(), // 類別
+                            key.toString(), // 單點類別
+                            "",
+                            mealClassification[key][index2][0][3]
+                                .toString(), // 單點名稱
+                            itemOption.text, // 單點選項
+                            itemPrice.text, // 單點價格
+                            pictureName.toString() // 圖片名稱
+                          ]);
+                        } else if (categoryName == "套餐") {
+                          comboMealClassification[key][index2].add([
+                            2.toString(), // 類別
+                            key.toString(), // 套餐類別
+                            "",
+                            comboMealClassification[key][index2][0][3]
+                                .toString(), // 套餐名稱
+                            itemOption.text, // 套餐選項
+                            itemPrice.text, // 套餐價格
+                            pictureName.toString() // 圖片名稱
+                          ]);
+                        } else if (categoryName == "選項") {
+                          optionClassification[key][index2].add([
+                            3.toString(), // 類別
+                            key.toString(), // 選項類別
+                            "",
+                            optionClassification[key][index2][0][3]
+                                .toString(), // 選項名稱
+                            itemOption.text, // 選項的選項
+                            itemPrice.text, // 選項價格
+                            pictureName.toString() // 圖片名稱
+                          ]);
+                        }
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text("確認"))
+              ],
+            );
+          });
+        });
+    setState(() {});
+  }
+
+  removeItem(String categoryName, String key, int index,
+      Map<String, dynamic> categoryClassification, int index2) {
+    if (categoryClassification[key][index2][index][6] != "") {
+      File("$menuPath/${categoryClassification[key][index2][index][6]}")
+          .deleteSync();
+    }
+    if (categoryName == "單點") {
+      if (categoryClassification[key][index2].length == 1) {
+        mealClassification[key].removeAt(index2);
+
+        Navigator.pop(context);
+      } else {
+        mealClassification[key][index2].removeAt(index);
+      }
+      if (kDebugMode) {
+        print("mealClassification: $mealClassification");
+      }
+    } else if (categoryName == "套餐") {
+      if (categoryClassification[key][index2].length == 1) {
+        comboMealClassification[key].removeAt(index2);
+
+        Navigator.pop(context);
+      } else {
+        comboMealClassification[key][index2].removeAt(index);
+      }
+      if (kDebugMode) {
+        print("comboMealClassification: $comboMealClassification");
+      }
+    } else if (categoryName == "選項") {
+      if (categoryClassification[key][index2].length == 1) {
+        optionClassification[key].removeAt(index2);
+
+        Navigator.pop(context);
+      } else {
+        optionClassification[key][index2].removeAt(index);
+      }
+      if (kDebugMode) {
+        print("optionClassification: $optionClassification");
+      }
+    }
+    setState(() {});
+  }
+
+  checkSameItemName(String categoryName, String key, String value) {
+    // 不得輸入已有的項目名稱
+    if (categoryName == "單點") {
+      for (int i = 0; i < mealClassification[key].length; i++) {
+        if (value == mealClassification[key][i][0][3]) {
+          return true;
+        }
+      }
+    } else if (categoryName == "套餐") {
+      for (int i = 0; i < comboMealClassification[key].length; i++) {
+        if (value == comboMealClassification[key][i][0][3]) {
+          return true;
+        }
+      }
+    } else if (categoryName == "選項") {
+      for (int i = 0; i < optionClassification[key].length; i++) {
+        if (value == optionClassification[key][i][0][3]) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  checkSameOptionName(
+      String categoryName, String key, int index2, String value) {
+    // 不得輸入已有的項目名稱
+    if (categoryName == "單點") {
+      for (int i = 0; i < mealClassification[key][index2].length; i++) {
+        if (value == mealClassification[key][index2][i][4]) {
+          return true;
+        }
+      }
+    } else if (categoryName == "套餐") {
+      for (int i = 0; i < comboMealClassification[key][index2].length; i++) {
+        if (value == comboMealClassification[key][index2][i][4]) {
+          return true;
+        }
+      }
+    } else if (categoryName == "選項") {
+      for (int i = 0; i < optionClassification[key][index2].length; i++) {
+        if (value == optionClassification[key][index2][i][4]) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool isValidDouble(String value) {
+    try {
+      double.parse(value);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
