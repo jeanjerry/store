@@ -332,6 +332,12 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                                         Center(
                                           child: IconButton(
                                             onPressed: () {
+                                              if (categoryClassification[key]
+                                                      [index2][index][6] !=
+                                                  "") {
+                                                File("$menuPath/${categoryClassification[key][index2][index][6]}")
+                                                    .deleteSync();
+                                              }
                                               if (categoryName == "單點") {
                                                 if (categoryClassification[key]
                                                             [index2]
