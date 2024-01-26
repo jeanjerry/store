@@ -248,8 +248,8 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                           child: Column(
                             children: [
                               ListView.builder(
-                                itemCount: categoryClassification[key].length !=
-                                        0
+                                itemCount: categoryClassification[key].length >
+                                        index2
                                     ? categoryClassification[key][index2].length
                                     : 0,
                                 shrinkWrap: true,
@@ -345,14 +345,13 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                                                     1) {
                                                   mealClassification[key]
                                                       .removeAt(index2);
+
                                                   Navigator.pop(context);
                                                 } else {
                                                   mealClassification[key]
                                                           [index2]
                                                       .removeAt(index);
                                                 }
-                                                setStateBottomSheet(() {});
-                                                setState(() {});
                                                 if (kDebugMode) {
                                                   print(
                                                       "mealClassification: $mealClassification");
@@ -364,14 +363,13 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                                                     1) {
                                                   comboMealClassification[key]
                                                       .removeAt(index2);
+
                                                   Navigator.pop(context);
                                                 } else {
                                                   comboMealClassification[key]
                                                           [index2]
                                                       .removeAt(index);
                                                 }
-                                                setStateBottomSheet(() {});
-                                                setState(() {});
                                                 if (kDebugMode) {
                                                   print(
                                                       "comboMealClassification: $comboMealClassification");
@@ -383,14 +381,13 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                                                     1) {
                                                   optionClassification[key]
                                                       .removeAt(index2);
+
                                                   Navigator.pop(context);
                                                 } else {
                                                   optionClassification[key]
                                                           [index2]
                                                       .removeAt(index);
                                                 }
-                                                setStateBottomSheet(() {});
-                                                setState(() {});
                                                 if (kDebugMode) {
                                                   print(
                                                       "optionClassification: $optionClassification");
