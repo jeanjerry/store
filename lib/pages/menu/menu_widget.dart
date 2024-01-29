@@ -18,7 +18,7 @@ class MenuWidget extends StatefulWidget {
 }
 
 class _MenuWidgetState extends State<MenuWidget> {
-  String contractAddress = "0x04EcFde8eb5cD3e4283E76bA380c187a0b8FC57c";
+  String contractAddress = "0x446d28cA6a3B64a0aA8f02d9506e67bc0258C73A";
   String account = "0xe9d6410ed4ff7a317ca0428a85547addb9c9b8d2";
   String password = "0";
 
@@ -111,13 +111,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                           child: IconButton(
                             icon: const Icon(Icons.refresh),
                             onPressed: () async {
-                              setState(() {
-                                isLoading = true;
-                              });
                               await refreshMenu();
-                              setState(() {
-                                isLoading = false;
-                              });
                             },
                           ),
                         ),
@@ -126,11 +120,17 @@ class _MenuWidgetState extends State<MenuWidget> {
                     const SizedBox(height: 30),
                     FilledButton(
                       onPressed: () async {
-                        Navigator.of(context).push(
+                        final result = await Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const Menu1Widget(),
+                            builder: (context) => Menu1Widget(
+                                contractAddress: contractAddress,
+                                account: account,
+                                password: password),
                           ),
                         );
+                        if (result == "true") {
+                          await refreshMenu();
+                        }
                       },
                       style: ButtonStyle(
                         minimumSize: MaterialStateProperty.all(
@@ -315,12 +315,20 @@ class _MenuWidgetState extends State<MenuWidget> {
                                         Expanded(
                                           child: Column(
                                             children: [
-                                              AutoSizeText(
-                                                "${menu[index][3]}　${menu[index][4]}",
-                                                textAlign: TextAlign.left,
-                                                style: const TextStyle(
-                                                    fontSize: 16),
-                                              ),
+                                              if (menu[index][4] == "")
+                                                AutoSizeText(
+                                                  menu[index][3],
+                                                  textAlign: TextAlign.left,
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
+                                                ),
+                                              if (menu[index][4] != "")
+                                                AutoSizeText(
+                                                  "${menu[index][3]}　${menu[index][4]}",
+                                                  textAlign: TextAlign.left,
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
+                                                ),
                                               AutoSizeText(
                                                 "${menu[index][5].toString()} ETH",
                                                 textAlign: TextAlign.center,
@@ -484,6 +492,10 @@ class _MenuWidgetState extends State<MenuWidget> {
   }
 
   refreshMenu() async {
+    setState(() {
+      isLoading = true;
+    });
+
     var menuVersion = await getMenuVersion(contractAddress, account);
 
     Directory menuDirectory = Directory(menuPath);
@@ -510,5 +522,8 @@ class _MenuWidgetState extends State<MenuWidget> {
     comboMeal.clear();
     option.clear();
     await initializeData();
+    setState(() {
+      isLoading = false;
+    });
   }
 }

@@ -57,3 +57,33 @@ getMenu(contractAddress, wallet, menuVersion) async {
     return null;
   }
 }
+
+// 更新菜單
+menuUpdate(contractAddress, storeWallet, storePassword, updateMenuLink) async {
+  var url = Uri.parse('http://140.127.114.38:15000/contract/menuUpdate');
+  var body = {
+    'contractAddress': contractAddress,
+    'storeWallet': storeWallet,
+    'storePassword': storePassword,
+    'updateMenuLink': updateMenuLink,
+  };
+
+  var response = await http.post(
+    url,
+    body: body,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    var data = jsonDecode(response.body);
+    var status = data['status'];
+    return status;
+  } else {
+    if (kDebugMode) {
+      print('Request failed with status: ${response.statusCode}.');
+    }
+    return null;
+  }
+}

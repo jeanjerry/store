@@ -192,4 +192,57 @@ class GoogleHelper {
       // 不要在這裡關閉 authenticatedClient
     }
   }
+
+  static Future<String?> driveUploadFolder(
+      String localFolderPath, String folderId, String folderName) async {
+    if (_account == null || _authenticatedClient == null) {
+      await signIn();
+    }
+
+    try {
+      var driveApi = drive.DriveApi(_authenticatedClient!);
+
+      // 檢查本地資料夾是否存在
+      var localFolder = Directory(localFolderPath);
+      if (!localFolder.existsSync()) {
+        if (kDebugMode) {
+          print('本地資料夾不存在：$localFolderPath');
+        }
+        return null;
+      }
+
+      // 創建共享資料夾
+      var remoteFolder = await driveApi.files.create(
+        drive.File(
+          name: folderName,
+          parents: [folderId],
+          mimeType: 'application/vnd.google-apps.folder',
+        ),
+      );
+
+      // 上傳本地資料夾中的所有檔案到共享資料夾
+      await for (var entity in localFolder.list()) {
+        if (entity is File) {
+          await driveApi.files.create(
+            drive.File(
+              name: entity.uri.pathSegments.last,
+              parents: [remoteFolder.id!],
+            ),
+            uploadMedia: drive.Media(entity.openRead(), entity.lengthSync()),
+          );
+        }
+      }
+
+      if (kDebugMode) {
+        print('資料夾上傳完成');
+      }
+      return remoteFolder.id;
+    } catch (e) {
+      if (kDebugMode) {
+        print('上傳資料夾時發生錯誤：$e');
+      }
+    } finally {
+      // 不要在這裡關閉 authenticatedClient
+    }
+  }
 }
