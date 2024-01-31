@@ -6,6 +6,7 @@ import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:googleapis/gmail/v1.dart' as gmail;
 import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart' as sign_in;
+import 'package:image_picker/image_picker.dart';
 
 class GoogleAuthClient extends http.BaseClient {
   final Map<String, String> _headers;
@@ -245,4 +246,126 @@ class GoogleHelper {
       // 不要在這裡關閉 authenticatedClient
     }
   }
+  /*---------------------------------*/
+  static Future<String?> driveCreateFolder(String folderName) async {
+    if (_account == null || _authenticatedClient == null) {
+      await signIn();
+    }
+
+    try {
+      var driveApi = drive.DriveApi(_authenticatedClient!);
+
+      // 創建資料夾
+      var folder = await driveApi.files.create(
+        drive.File(
+          name: folderName,
+          mimeType: 'application/vnd.google-apps.folder',
+        ),
+      );
+
+      // 獲取資料夾的共享網址
+      var permission = drive.Permission();
+      permission.role = 'reader';
+      permission.type = 'anyone';
+
+      await driveApi.permissions.create(
+        permission,
+        folder.id!,
+        sendNotificationEmail: false,
+      );
+
+      // 獲取共享網址
+      var folderUrl = await driveApi.files.get(folder.id!, $fields: 'webViewLink') as drive.File;
+
+      if (kDebugMode) {
+        print('資料夾創建完成，共享網址：${folderUrl.webViewLink}');
+      }
+
+      // 提取資料夾 ID
+      var folderId = folderUrl.webViewLink?.split('/').last;
+
+      return folderId;
+    } catch (e) {
+      if (kDebugMode) {
+        print('創建資料夾時發生錯誤：$e');
+      }
+    } finally {
+      // 不要在這裡關閉 authenticatedClient
+    }
+  }
+
+  static Future<String?> uploadImageToDrive(String folderId) async {
+    if (_account == null || _authenticatedClient == null) {
+      await signIn();
+    }
+
+    try {
+      var driveApi = drive.DriveApi(_authenticatedClient!);
+
+      // 選取手機圖片
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        // 上傳圖片到 Google 雲端硬碟
+        var media = drive.Media(
+          Stream.fromIterable([await pickedFile.readAsBytes()]),
+          await pickedFile.length(),
+        );
+
+        var imageFile = await driveApi.files.create(
+          drive.File(
+            name: pickedFile.path.split('/').last,
+            parents: [folderId],
+          ),
+          uploadMedia: media,
+        );
+
+        // 獲得共享網址
+        var permission = drive.Permission();
+        permission.role = 'reader';
+        permission.type = 'anyone';
+
+        await driveApi.permissions.create(
+          permission,
+          imageFile.id!,
+          sendNotificationEmail: false,
+        );
+
+        var imageUrl = await driveApi.files.get(imageFile.id!, $fields: 'webViewLink') as drive.File;
+
+        if (kDebugMode) {
+          print('圖片上傳完成，共享網址：${imageUrl.webViewLink}');
+        }
+
+        String extractFileIdFromUrl(String url) {
+          var uri = Uri.parse(url);
+          var fileId = uri.pathSegments[2];
+          return fileId;
+        }
+
+        String url = imageUrl.webViewLink.toString();
+        String fileId = extractFileIdFromUrl(url);
+
+        // 返回檔案的 ID
+        return fileId;
+      } else {
+        if (kDebugMode) {
+          print('未選擇圖片');
+        }
+        return null;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('上傳圖片時發生錯誤：$e');
+      }
+      return null;
+    } finally {
+      // 不要在這裡關閉 authenticatedClient
+    }
+  }
+
+
+
+
 }

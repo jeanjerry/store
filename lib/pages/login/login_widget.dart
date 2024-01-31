@@ -1,3 +1,9 @@
+import 'dart:convert';
+
+import 'package:geocoding/geocoding.dart';
+
+import '../../google_api.dart';
+import '../../main.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -10,6 +16,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'login_model.dart';
 export 'login_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:geocoding_platform_interface/src/models/location.dart' as GeoLocation;
+
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({Key? key}) : super(key: key);
@@ -93,6 +102,176 @@ class _LoginWidgetState extends State<LoginWidget>
       ],
     ),
   };
+
+
+  deploy() async {
+    var url = Uri.parse(ip+"deploy");
+
+    final responce = await http.post(url,body: {
+
+      "storePassword": FFAppState().password,
+      "storeName": FFAppState().storename,
+      "storeAddress": FFAppState().storeaddress,
+      "storePhone": FFAppState().storephone,
+      "storeWallet": FFAppState().account,
+      "storeTag": FFAppState().tag,
+      "latitudeAndLongitude": _result,
+      "menuLink": FolderId,
+      "storeEmail": FFAppState().email,
+      "storeImageLink": ImageId,
+
+    });
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      setState(() {
+        FFAppState().address = data["contractAddress"]; //獲取合約位置
+        _model.addressController.text = FFAppState().address; //創好合約位置直接把值輸入登入框
+      });
+      return data;
+    }
+  }
+
+  Future<void> createAccount() async {
+
+    var url = Uri.parse(ip+"createAccount");
+    final responce = await http.post(url,body: {
+
+      "password": _model.passwordController1.text,
+
+    });
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      print("店家帳號:"+data["account"]);
+
+      setState(() {
+        FFAppState().account = data["account"]; //獲取合約位置
+        _model.emailAddressController.text = FFAppState().account; //創好帳號直接把值輸入登入框
+        _model.passwordController2.text = FFAppState().password; //創好密碼直接把值輸入登入框
+
+      });
+    }
+  }
+
+  String _result = '';
+  _convertAddressToLatLng() async {  //把地址轉成經緯度
+    try {
+      List<GeoLocation.Location> locations = await locationFromAddress(
+        FFAppState().storeaddress,
+      );
+      if (locations.isNotEmpty) {
+        GeoLocation.Location first = locations.first;
+        setState(() {
+          //_result = '經度: ${first.latitude}, 緯度: ${first.longitude}';
+          _result= '${first.latitude}%2C${first.longitude}';
+        });
+      } else {
+        setState(() {
+          _result = '找不到該地址的經緯度信息';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _result = '發生錯誤: $e';
+      });
+    }
+    print(_result);
+
+  }
+  var FolderId = '';
+  var ImageId = '';
+  driveCreateFolder() async {  //創建雲端資料夾
+    var folderName = 'menu'; // 請替換為新資料夾的名稱
+
+    var createdFolderId = await GoogleHelper.driveCreateFolder(folderName);
+
+    if (createdFolderId != null) {
+      setState(() {
+        FolderId = createdFolderId.toString();
+      });
+      //print(createdFolderId); // 資料夾創建成功，你可以繼續進行其他操作
+
+      // 提示選擇圖片
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("請選擇圖片"),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop(); // 關閉對話框
+                  var uploadImageId = await GoogleHelper.uploadImageToDrive(createdFolderId);
+                    setState(() {
+                      ImageId = uploadImageId.toString();
+                    });
+                    if(ImageId.isNotEmpty){
+                      await deploy();
+                      print("創建完成");
+                    }
+                },
+                child: Text("確定"),
+              ),
+            ],
+          );
+        },
+      );
+      //print(uploadImageId);
+    } else {
+      // 資料夾創建失敗，處理錯誤
+    }
+  }
+
+  Future<void> check() async {
+
+    var url = Uri.parse(ip+"signUp/check");
+    final responce = await http.post(url,body: {
+
+      "storeWallet": FFAppState().account.toString(),
+      "storePassword": FFAppState().password.toString(),
+      "contractAddress": FFAppState().address.toString(),
+
+    });
+
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      print("帳號是否正確:${data['result'].toString()}");
+      if(data['result']==false){
+        await showDialog(
+          context: context,
+          builder: (alertDialogContext) {
+            return AlertDialog(
+              title: Text('登入失敗'),
+              actions: [
+                TextButton(
+                  onPressed: () =>
+                      Navigator.pop(alertDialogContext),
+                  child: Text('Ok'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+      else{
+        await showDialog(
+          context: context,
+          builder: (alertDialogContext) {
+            return AlertDialog(
+              title: Text('登入成功'),
+              actions: [
+                TextButton(
+                  onPressed: () =>
+                      Navigator.pop(alertDialogContext),
+                  child: Text('Ok'),
+                ),
+              ],
+            );
+          },
+        );
+        context.pushNamed('home');
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -1023,35 +1202,24 @@ class _LoginWidgetState extends State<LoginWidget>
                                                     ),
                                                   ),
                                                   Align(
-                                                    alignment:
-                                                        AlignmentDirectional(
-                                                            0.0, 0.0),
+                                                    alignment: AlignmentDirectional(0.0, 0.0),
                                                     child: Padding(
                                                       padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  16.0,
-                                                                  0.0,
-                                                                  16.0),
+                                                      EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 16.0),
                                                       child: FFButtonWidget(
                                                         onPressed: () async {
-                                                          context.pushNamed(
-                                                              'message');
+                                                          await createAccount();
+                                                          print("1");
+                                                          await _convertAddressToLatLng();
+                                                          print("2");
+                                                          await driveCreateFolder();
+                                                          print("3");
                                                         },
                                                         text: '創建',
                                                         options:
                                                             FFButtonOptions(
-                                                          width:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  0.7,
-                                                          height:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .height *
-                                                                  0.06,
+                                                              width: MediaQuery.sizeOf(context).width * 0.7,
+                                                              height: MediaQuery.sizeOf(context).height * 0.06,
                                                           padding:
                                                               EdgeInsetsDirectional
                                                                   .fromSTEB(
@@ -1141,27 +1309,14 @@ class _LoginWidgetState extends State<LoginWidget>
                                                   ),
                                                   Padding(
                                                     padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(0.0, 14.0,
-                                                                0.0, 14.0),
+                                                        EdgeInsetsDirectional.fromSTEB(0.0, 14.0, 0.0, 14.0),
                                                     child: Container(
-                                                      width: MediaQuery.sizeOf(
-                                                                  context)
-                                                              .width *
-                                                          1.0,
-                                                      child: TextFormField(
-                                                        controller: _model
-                                                            .addressController,
-                                                        focusNode: _model
-                                                            .addressFocusNode,
+                                                      width: MediaQuery.sizeOf(context).width * 1.0,
+                                                      child: TextFormField(controller: _model.addressController,
+                                                        focusNode: _model.addressFocusNode,
                                                         onFieldSubmitted:
-                                                            (_) async {
-                                                          setState(() {
-                                                            FFAppState()
-                                                                    .account =
-                                                                _model
-                                                                    .addressController
-                                                                    .text;
+                                                            (_) async {setState(() {
+                                                            FFAppState().address = _model.addressController.text;
                                                           });
                                                         },
                                                         autofocus: true,
@@ -1523,30 +1678,18 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             0.0, 0.0),
                                                     child: Padding(
                                                       padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  0.0,
-                                                                  0.0,
-                                                                  16.0),
+                                                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
                                                       child: FFButtonWidget(
                                                         onPressed: () async {
-                                                          context.pushNamed(
-                                                              'home');
+                                                          await check();
                                                         },
                                                         text: '登入',
                                                         options:
                                                             FFButtonOptions(
                                                           width:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .width *
-                                                                  0.7,
+                                                              MediaQuery.sizeOf(context).width * 0.7,
                                                           height:
-                                                              MediaQuery.sizeOf(
-                                                                          context)
-                                                                      .height *
-                                                                  0.06,
+                                                              MediaQuery.sizeOf(context).height * 0.06,
                                                           padding:
                                                               EdgeInsetsDirectional
                                                                   .fromSTEB(

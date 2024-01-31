@@ -25,6 +25,7 @@ void main() async {
     child: MyApp(),
   ));
 }
+var ip =('http://140.127.114.38:15000/');//ip位置
 
 class MyApp extends StatefulWidget {
   // This widget is the root of your application.
