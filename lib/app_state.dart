@@ -48,6 +48,9 @@ class FFAppState extends ChangeNotifier {
       _tag = prefs.getString('ff_tag') ?? _tag;
     });
     _safeInit(() {
+      _address = prefs.getString('ff_address') ?? _address;
+    });
+    _safeInit(() {
       _imagelink = prefs.getString('ff_imagelink') ?? _imagelink;
     });
   }
@@ -133,6 +136,7 @@ class FFAppState extends ChangeNotifier {
   String get address => _address;
   set address(String _value) {
     _address = _value;
+    prefs.setString('ff_address', _value);
   }
 
   String _imagelink = '';

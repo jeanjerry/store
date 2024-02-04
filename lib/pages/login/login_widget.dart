@@ -127,7 +127,6 @@ class _LoginWidgetState extends State<LoginWidget>
         FFAppState().address = data["contractAddress"]; //獲取合約位置
         _model.addressController.text = FFAppState().address; //創好合約位置直接把值輸入登入框
       });
-      return data;
     }
   }
 
@@ -1209,11 +1208,8 @@ class _LoginWidgetState extends State<LoginWidget>
                                                       child: FFButtonWidget(
                                                         onPressed: () async {
                                                           await createAccount();
-                                                          print("1");
                                                           await _convertAddressToLatLng();
-                                                          print("2");
                                                           await driveCreateFolder();
-                                                          print("3");
                                                         },
                                                         text: '創建',
                                                         options:
@@ -1308,108 +1304,58 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         ),
                                                   ),
                                                   Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional.fromSTEB(0.0, 14.0, 0.0, 14.0),
+                                                    padding: EdgeInsetsDirectional.fromSTEB(0, 14, 0, 14),
                                                     child: Container(
-                                                      width: MediaQuery.sizeOf(context).width * 1.0,
-                                                      child: TextFormField(controller: _model.addressController,
+                                                      width: MediaQuery.sizeOf(context).width,
+                                                      child: TextFormField(
+                                                        controller: _model.addressController,
                                                         focusNode: _model.addressFocusNode,
-                                                        onFieldSubmitted:
-                                                            (_) async {setState(() {
+                                                        onFieldSubmitted: (_) async {
+                                                          setState(() {
                                                             FFAppState().address = _model.addressController.text;
                                                           });
                                                         },
                                                         autofocus: true,
-                                                        autofillHints: [
-                                                          AutofillHints.email
-                                                        ],
+                                                        autofillHints: [AutofillHints.email],
                                                         obscureText: false,
-                                                        decoration:
-                                                            InputDecoration(
+                                                        decoration: InputDecoration(
                                                           labelText: '合約位置',
-                                                          labelStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelLarge,
-                                                          enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .primaryBackground,
-                                                              width: 2.0,
+                                                          labelStyle: FlutterFlowTheme.of(context).labelLarge,
+                                                          enabledBorder: OutlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color: FlutterFlowTheme.of(context).primaryBackground,
+                                                              width: 2,
                                                             ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        40.0),
+                                                            borderRadius: BorderRadius.circular(40),
                                                           ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .primary,
-                                                              width: 2.0,
+                                                          focusedBorder: OutlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color: FlutterFlowTheme.of(context).primary,
+                                                              width: 2,
                                                             ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        40.0),
+                                                            borderRadius: BorderRadius.circular(40),
                                                           ),
-                                                          errorBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .alternate,
-                                                              width: 2.0,
+                                                          errorBorder: OutlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color: FlutterFlowTheme.of(context).alternate,
+                                                              width: 2,
                                                             ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        40.0),
+                                                            borderRadius: BorderRadius.circular(40),
                                                           ),
-                                                          focusedErrorBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .alternate,
-                                                              width: 2.0,
+                                                          focusedErrorBorder: OutlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color: FlutterFlowTheme.of(context).alternate,
+                                                              width: 2,
                                                             ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        40.0),
+                                                            borderRadius: BorderRadius.circular(40),
                                                           ),
                                                           filled: true,
-                                                          fillColor: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryBackground,
-                                                          contentPadding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      24.0,
-                                                                      24.0,
-                                                                      0.0,
-                                                                      24.0),
+                                                          fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+                                                          contentPadding: EdgeInsetsDirectional.fromSTEB(24, 24, 0, 24),
                                                         ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyLarge,
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .emailAddress,
-                                                        validator: _model
-                                                            .addressControllerValidator
-                                                            .asValidator(
-                                                                context),
+                                                        style: FlutterFlowTheme.of(context).bodyLarge,
+                                                        keyboardType: TextInputType.emailAddress,
+                                                        validator: _model.addressControllerValidator.asValidator(context),
                                                       ),
                                                     ),
                                                   ),
@@ -1431,11 +1377,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         onFieldSubmitted:
                                                             (_) async {
                                                           setState(() {
-                                                            FFAppState()
-                                                                    .account =
-                                                                _model
-                                                                    .emailAddressController
-                                                                    .text;
+                                                            FFAppState().account = _model.emailAddressController.text;
                                                           });
                                                         },
                                                         autofocus: true,

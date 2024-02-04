@@ -1,3 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:decimal/decimal.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../google_api.dart';
+import '../message/message_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -9,15 +18,130 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'order1_model.dart';
 export 'order1_model.dart';
+import 'package:http/http.dart' as http;
+import '/main.dart';
+import '/database/storeDB.dart'; // 引入自定義的 SQL 檔案
+import 'package:permission_handler/permission_handler.dart';
+
 
 class Order1Widget extends StatefulWidget {
-  const Order1Widget({Key? key}) : super(key: key);
-
+  const Order1Widget({Key? key, required this.C}) : super(key: key);
+  final Map<String, dynamic> C;
   @override
   _Order1WidgetState createState() => _Order1WidgetState();
 }
 
 class _Order1WidgetState extends State<Order1Widget> {
+
+  Timer? refreshTimer;
+  Timer? refreshTimer_1;
+
+  Future<void> checkAndRequestPermissions() async {
+    var status = await Permission.storage.status;
+    if (status.isDenied) {
+      await Permission.storage.request();
+    }
+  }
+
+  getOrderContent() async {   //獲取訂單內容
+    var url = Uri.parse(ip+"contract/getOrderContent");
+
+    final responce = await http.post(url,body: {
+
+      "contractAddress": FFAppState().address,
+      "wallet": FFAppState().account,
+      "id": widget.C["id"],
+
+    });
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      //print("訂單內容:${data["orderContent"].toString()}");
+      return data["orderContent"];
+    }
+  }
+
+  getOrder() async {
+    var url = Uri.parse(ip+"contract/getOrder");
+
+    final responce = await http.post(url,body: {
+
+      "contractAddress": FFAppState().address,
+      "wallet": FFAppState().account,
+      "id": widget.C["id"],
+
+    });
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      return data;
+    }
+  }
+
+  Future<bool> _checkImageFileExist_takemeal() async {
+    File imageFile = File("/data/data/com.mycompany.store/confirm_picture/"+FFAppState().address+"-"+widget.C["id"]+"-"+"取餐照片-0");
+    return await imageFile.exists();
+  }
+
+  Future<bool> _checkImageFileExist_service() async {
+    File imageFile = File("/data/data/com.mycompany.store/confirm_picture/"+FFAppState().address+"-"+widget.C["id"]+"-"+"送達照片-0");
+    return await imageFile.exists();
+  }
+
+  storePrepared() async {   //店家是否準備好餐點
+    var url = Uri.parse(ip+"contract/storePrepared");
+
+    final responce = await http.post(url,body: {
+
+      "contractAddress": FFAppState().address,
+      "storeWallet": FFAppState().account,
+      "storePassword": FFAppState().password,
+      "id": widget.C["id"],
+
+    });
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      print("餐點已準備好");
+      return data;
+    }
+  }
+
+
+  getImage() async {   //店家是否準備好餐點
+     refreshTimer_1 = Timer.periodic(Duration(minutes: 3), (Timer timer) async {
+      await checkAndRequestPermissions();  //確認權限
+      await GoogleHelper.gmailGetMessage(FFAppState().address,widget.C["id"],"取餐照片");
+      print("取餐照片完成");
+      await GoogleHelper.gmailGetMessage(FFAppState().address,widget.C["id"],"送達照片");
+      print("送達照片完成");
+    });
+  }
+
+
+
+  List<Map<String, dynamic>> orderContentList = []; // 訂單內容
+  Future<List> getData() async {
+    if(orderContentList.isEmpty){
+      await dbHelper.dbResetOrder_content();
+      orderContentList = List.from(orderContentList);//使list變成可更改的
+      orderContentList.clear();
+      var orderContent = await getOrderContent();
+      for (var i =0; i< orderContent.length;i++){
+        Map<String, dynamic> A = {};//重要{}
+        A['orderID']=orderContent[i][0];
+        A['num']=orderContent[i][1];
+        A['money']=(Decimal.parse(orderContent[i][2]) / Decimal.parse('1e18')).toDouble().toString();
+        await dbHelper.dbInsertOrder_content(A); // 將訂單內容插入資料庫
+      }
+      print("訂單內容是: $orderContent");
+      orderContentList = await dbHelper.dbGetOrder_content(); // 更新訂單內
+    }
+    return orderContentList;
+  }
+
+
+
+
+
+  late DBHelper dbHelper; // DBHelper 實例
   late Order1Model _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -26,12 +150,25 @@ class _Order1WidgetState extends State<Order1Widget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => Order1Model());
+    dbHelper = DBHelper(); // 初始化 DBHelper
+    getImage();
+    // 在 initState 中启动定时器
+    startRefreshTimer();
+  }
+
+  void startRefreshTimer() {
+    // 设置定时任务，每4分钟执行一次检查图片文件存在性的操作
+    refreshTimer = Timer.periodic(Duration(minutes: 4), (timer) {
+      // 重新检查图片文件存在性并更新UI
+      setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _model.dispose();
-
+    refreshTimer?.cancel();// 在组件销毁时取消定时任务
+    refreshTimer_1?.cancel();// 在组件销毁时取消定时任务
     super.dispose();
   }
 
@@ -129,8 +266,9 @@ class _Order1WidgetState extends State<Order1Widget> {
                           shape: BoxShape.rectangle,
                         ),
                         child: FFButtonWidget(
-                          onPressed: () {
-                            print('Button pressed ...');
+                          onPressed: () async {
+                            await storePrepared();
+                            //await getImage();
                           },
                           text: '餐點準備完成',
                           options: FFButtonOptions(
@@ -181,7 +319,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '單號',
+                                '單號 : '+widget.C['id'],
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
@@ -208,106 +346,26 @@ class _Order1WidgetState extends State<Order1Widget> {
                                   Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(
                                         0.0, 0.0, 0.0, 12.0),
-                                    child: Container(
-                                      width: MediaQuery.sizeOf(context).width *
-                                          1.0,
+                                    child:Container(
+                                      width: MediaQuery.sizeOf(context).width * 1.0,
+                                      height: MediaQuery.sizeOf(context).height * 0.1,
                                       decoration: BoxDecoration(
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
-                                        borderRadius:
-                                            BorderRadius.circular(0.0),
+                                        color: Color(0xFFF1F4F8),
+                                        borderRadius: BorderRadius.circular(0.0),
                                       ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 4.0, 0.0, 12.0),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Expanded(
-                                                  flex: 3,
-                                                  child: Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(8.0, 0.0,
-                                                                4.0, 0.0),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.max,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        AutoSizeText(
-                                                          '食物變數 ',
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .titleLarge
-                                                              .override(
-                                                                fontFamily:
-                                                                    'Outfit',
-                                                                fontSize: 20.0,
-                                                              ),
-                                                        ),
-                                                        AutoSizeText(
-                                                          '食物變數',
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .titleLarge
-                                                              .override(
-                                                                fontFamily:
-                                                                    'Outfit',
-                                                                fontSize: 20.0,
-                                                              ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    AutoSizeText(
-                                                      'x1',
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleLarge
-                                                              .override(
-                                                                fontFamily:
-                                                                    'Outfit',
-                                                                fontSize: 20.0,
-                                                              ),
-                                                    ),
-                                                    AutoSizeText(
-                                                      'x2',
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleLarge
-                                                              .override(
-                                                                fontFamily:
-                                                                    'Outfit',
-                                                                fontSize: 20.0,
-                                                              ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                                      child:FutureBuilder<List>(
+                                        future: getData(),
+                                        builder: (ctx,ss) {
+                                          if(ss.hasError){
+                                            print("error");
+                                          }
+                                          if(ss.hasData){
+                                            return Items(list:ss.data);
+                                          }
+                                          else{
+                                            return CircularProgressIndicator();
+                                          }
+                                        },
                                       ),
                                     ),
                                   ),
@@ -343,7 +401,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                                                       ),
                                             ),
                                             AutoSizeText(
-                                              '30元',
+                                              widget.C['fee']+' ETH',
                                               style:
                                                   FlutterFlowTheme.of(context)
                                                       .titleLarge
@@ -367,7 +425,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                                           .secondaryBackground,
                                     ),
                                     child: AutoSizeText(
-                                      '消費者地址 : 807高雄市三民區建工路415號',
+                                      '消費者地址 : '+widget.C['consumer'],
                                       style: FlutterFlowTheme.of(context)
                                           .titleLarge
                                           .override(
@@ -412,7 +470,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                               ),
                               Padding(
                                 padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 0.0, 0.0, 24.0),
+                                    0.0, 0.0, 0.0, 22.0),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -420,9 +478,8 @@ class _Order1WidgetState extends State<Order1Widget> {
                                     Align(
                                       alignment: AlignmentDirectional(0.0, 0.0),
                                       child: Text(
-                                        '備註文字',
-                                        style: FlutterFlowTheme.of(context)
-                                            .titleLarge,
+                                          widget.C['note'].toString(),
+                                        style: FlutterFlowTheme.of(context).titleLarge,
                                       ),
                                     ),
                                   ],
@@ -436,8 +493,15 @@ class _Order1WidgetState extends State<Order1Widget> {
                         padding:
                             EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
                         child: FFButtonWidget(
-                          onPressed: () {
-                            print('Button pressed ...');
+                          onPressed: () async {
+                            Map<String, dynamic> B = {};
+                            B['id']=widget.C['id'];
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => MessageWidget(B: B, ),
+                              ),
+                            );
+                            //context.pushNamed('message');
                           },
                           text: '聊天室',
                           options: FFButtonOptions(
@@ -475,7 +539,16 @@ class _Order1WidgetState extends State<Order1Widget> {
                         hoverColor: Colors.transparent,
                         highlightColor: Colors.transparent,
                         onTap: () async {
-                          context.safePop();
+                          var _result =await getOrder();
+                          var result = '' ;
+                          setState(() {
+                            result = _result["deliveryLocation"];
+                            print(result);
+                          });
+                          Uri mapURL = Uri.parse('https://www.google.com/maps/search/?api=1&query=$result');
+                          if (!await launchUrl(mapURL, mode: LaunchMode.externalApplication)) {
+                            throw Exception('Could not launch $mapURL');
+                          }
                         },
                         child: Container(
                           width: MediaQuery.sizeOf(context).width * 1.0,
@@ -526,22 +599,202 @@ class _Order1WidgetState extends State<Order1Widget> {
                           ),
                         ),
                       ),
-                      Container(
-                        width: MediaQuery.sizeOf(context).width * 1.0,
-                        height: MediaQuery.sizeOf(context).height * 0.2,
-                        constraints: BoxConstraints(
-                          maxWidth: 430.0,
+                      InkWell(
+                        splashColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        onTap: () async {
+                          context.safePop();
+                        },
+                        child: Container(
+                          width: MediaQuery.sizeOf(context).width,
+                          height: MediaQuery.sizeOf(context).height * 0.3,
+                          constraints: BoxConstraints(
+                            maxWidth: 430,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFD9BABA),
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 4,
+                                color: Color(0x33000000),
+                                offset: Offset(0, 5),
+                              )
+                            ],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Stack(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  FutureBuilder<bool>(
+                                    future: _checkImageFileExist_takemeal(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.done) {
+                                        if (snapshot.data == true) {
+                                          // If image file exists, display "外送員已取餐"
+                                          return Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              "外送員已取餐",
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          // If image file doesn't exist, display "外送員未取餐"
+                                          return Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              "外送員未取餐",
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } else {
+                                        // Loading indicator while checking file existence
+                                        return Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                              Align(
+                                alignment: Alignment.center,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: FutureBuilder<bool>(
+                                    future: _checkImageFileExist_takemeal(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.done) {
+                                        if (snapshot.data == true) {
+                                          // If image file exists, display Image widget
+                                          return Image.file(
+                                            File("/data/data/com.mycompany.store/confirm_picture/"+FFAppState().address+"-"+widget.C["id"]+"-"+"取餐照片-0"),
+                                            width: MediaQuery.sizeOf(context).width * 0.9,
+                                            height: MediaQuery.sizeOf(context).height * 0.2,
+                                            fit: BoxFit.cover,
+                                          );
+                                        } else {
+                                          // If image file doesn't exist, display CircularProgressIndicator
+                                          return CircularProgressIndicator();
+                                        }
+                                      } else {
+                                        // Loading indicator while checking file existence
+                                        return CircularProgressIndicator();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          color: Color(0xFFD9BABA),
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 4.0,
-                              color: Color(0x33000000),
-                              offset: Offset(0.0, 5.0),
-                            )
-                          ],
-                          borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      InkWell(
+                        splashColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        onTap: () async {
+                          context.safePop();
+                        },
+                        child: Container(
+                          width: MediaQuery.sizeOf(context).width,
+                          height: MediaQuery.sizeOf(context).height * 0.3,
+                          constraints: BoxConstraints(
+                            maxWidth: 430,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFD9BABA),
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 4,
+                                color: Color(0x33000000),
+                                offset: Offset(0, 5),
+                              )
+                            ],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Stack(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  FutureBuilder<bool>(
+                                    future: _checkImageFileExist_service(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.done) {
+                                        if (snapshot.data == true) {
+                                          // If image file exists, display "外送員已取餐"
+                                          return Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              "外送員已送達",
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          // If image file doesn't exist, display "外送員未取餐"
+                                          return Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              "外送員未送達",
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } else {
+                                        // Loading indicator while checking file existence
+                                        return Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                              Align(
+                                alignment: Alignment.center,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: FutureBuilder<bool>(
+                                    future: _checkImageFileExist_service(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.done) {
+                                        if (snapshot.data == true) {
+                                          // If image file exists, display Image widget
+                                          return Image.file(
+                                            File("/data/data/com.mycompany.store/confirm_picture/"+FFAppState().address+"-"+widget.C["id"]+"-"+"送達照片-0"),
+                                            width: MediaQuery.sizeOf(context).width * 0.9,
+                                            height: MediaQuery.sizeOf(context).height * 0.2,
+                                            fit: BoxFit.cover,
+                                          );
+                                        } else {
+                                          // If image file doesn't exist, display CircularProgressIndicator
+                                          return CircularProgressIndicator();
+                                        }
+                                      } else {
+                                        // Loading indicator while checking file existence
+                                        return CircularProgressIndicator();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -552,6 +805,104 @@ class _Order1WidgetState extends State<Order1Widget> {
           ),
         ),
       ),
+    );
+  }
+}
+class Items extends StatelessWidget {
+
+  List? list;
+
+  Items({this.list});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: list!.length,  //列表的數量
+      itemBuilder: (ctx,i){    //列表的構建器
+        return Padding(
+          padding: EdgeInsetsDirectional.fromSTEB(
+              0.0, 0.0, 0.0, 2.0),
+          child: Container(
+            width: MediaQuery.sizeOf(context).width * 1.0,
+            decoration: BoxDecoration(
+              color: FlutterFlowTheme.of(context)
+                  .secondaryBackground,
+              borderRadius:
+              BorderRadius.circular(0.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding:
+                  EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 0.0, 12.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment:
+                    MainAxisAlignment.start,
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AutoSizeText(
+                            list![i]["orderID"],
+                            style: FlutterFlowTheme.of(context).titleLarge.override(
+                              fontFamily:
+                              'Outfit',
+                              fontSize: 20.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize:
+                          MainAxisSize.max,
+                          children: [
+                            AutoSizeText(
+                              'x'+list![i]["num"],
+                              style: FlutterFlowTheme
+                                  .of(context)
+                                  .titleLarge
+                                  .override(
+                                fontFamily:
+                                'Outfit',
+                                fontSize: 20.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize:
+                        MainAxisSize.max,
+                        children: [
+                          AutoSizeText(
+                            list![i]["money"]+' ETH',
+                            style:
+                            FlutterFlowTheme.of(
+                                context)
+                                .titleLarge
+                                .override(
+                              fontFamily:
+                              'Outfit',
+                              fontSize: 20.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -178,12 +178,13 @@ class GoogleHelper {
 
               // 如果沒有資料夾就建一個
               await Directory(
-                      '/data/data/com.hpds.blofood_consumer/confirm_picture')
+                      '/data/data/com.mycompany.store/confirm_picture'
+              )
                   .create(recursive: true);
 
               // 將附件寫入檔案
               var file = File(
-                  '/data/data/com.hpds.blofood_consumer/confirm_picture/$contract-$id-$type-$i');
+                  '/data/data/com.mycompany.store/confirm_picture/$contract-$id-$type-$i');
               file.writeAsBytesSync(data);
             }
           }

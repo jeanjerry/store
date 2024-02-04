@@ -57,7 +57,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: 'home-1',
           path: '/home1',
-          builder: (context, params) => Home1Widget(),
+          builder: (context, params) => Home1Widget(A: {},),
         ),
         FFRoute(
           name: 'order',
@@ -68,7 +68,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: 'order-1',
           path: '/order1',
-          builder: (context, params) => Order1Widget(),
+          builder: (context, params) => Order1Widget(C: {},),
         ),
         FFRoute(
           name: 'wallet',
@@ -87,7 +87,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: 'message',
           path: '/message',
-          builder: (context, params) => MessageWidget(),
+          builder: (context, params) => MessageWidget(B: {},),
         ),
         FFRoute(
           name: 'menu',

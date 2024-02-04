@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:geocoding/geocoding.dart';
+
+import '../../google_api.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -8,6 +13,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'setting_model.dart';
 export 'setting_model.dart';
+import 'package:http/http.dart' as http;
+import '/main.dart';
+import 'package:geocoding_platform_interface/src/models/location.dart' as GeoLocation;
+
+
+
 
 class SettingWidget extends StatefulWidget {
   const SettingWidget({Key? key}) : super(key: key);
@@ -17,6 +28,122 @@ class SettingWidget extends StatefulWidget {
 }
 
 class _SettingWidgetState extends State<SettingWidget> {
+
+
+  setStore() async {
+    var url = Uri.parse(ip+"contract/setStore");
+
+    final responce = await http.post(url,body: {
+
+      "contractAddress": FFAppState().address,
+      "storePassword": FFAppState().password,
+      "storeName": FFAppState().storename,
+      "storeAddress": FFAppState().storeaddress,
+      "storePhone": FFAppState().storephone,
+      "storeWallet": FFAppState().account,
+      "storeTag": FFAppState().tag,
+      "latitudeAndLongitude": _result,
+      "storeEmail": FFAppState().email,
+      "storeImageLink": storeImageLink,
+
+    });
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      return data;
+    }
+  }
+
+  String _result = '';
+  _convertAddressToLatLng() async {  //把地址轉成經緯度
+    try {
+      List<GeoLocation.Location> locations = await locationFromAddress(
+        FFAppState().storeaddress,
+      );
+      if (locations.isNotEmpty) {
+        GeoLocation.Location first = locations.first;
+        setState(() {
+          //_result = '經度: ${first.latitude}, 緯度: ${first.longitude}';
+          _result= '${first.latitude}%2C${first.longitude}';
+        });
+      } else {
+        setState(() {
+          _result = '找不到該地址的經緯度信息';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _result = '發生錯誤: $e';
+      });
+    }
+    print(_result);
+
+  }
+
+  getStore() async {
+    var url = Uri.parse(ip+"contract/getStore");
+
+    final responce = await http.post(url,body: {
+
+      "contractAddress": FFAppState().address,
+      "wallet": FFAppState().account,
+
+    });
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      return data;
+    }
+  }
+
+
+
+  var storeImageLink = '';
+  upimage() async {  //更新把圖片上傳到雲端資料夾
+    var Store = await getStore();
+    await showDialog(  // 提示選擇圖片
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("受否要上傳圖片"),
+                  actions: [
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop(); // 關閉對話框
+                        await _convertAddressToLatLng();
+                        var StoreImageLink = await Store["storeImageLink"];
+                        setState(() {
+                          storeImageLink = StoreImageLink.toString();
+                        });
+                        if(storeImageLink.isNotEmpty){
+                          await setStore();
+                          print("更新完成");
+                        }
+                      },
+                      child: Text("不要"),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop(); // 關閉對話框
+                        await _convertAddressToLatLng();
+                        var uploadImageId = await GoogleHelper.uploadImageToDrive(Store["menuLink"]);
+                        setState(() {
+                          storeImageLink = uploadImageId.toString();
+                        });
+                        if(storeImageLink.isNotEmpty){
+                          await setStore();
+                          print("更新完成");
+                        }
+                      },
+                      child: Text("確定"),
+                    ),
+                  ],
+                );
+              },
+            );
+      //print(uploadImageId);
+    }
+
+
+
   late SettingModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -580,103 +707,6 @@ class _SettingWidgetState extends State<SettingWidget> {
                     ),
                   ),
                 ),
-                Align(
-                  alignment: AlignmentDirectional(-1.0, -1.0),
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.fromSTEB(22.0, 0.0, 0.0, 0.0),
-                    child: Text(
-                      '圖片連結:',
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            fontFamily: 'Readex Pro',
-                            fontSize: 22.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsetsDirectional.fromSTEB(20.0, 6.0, 20.0, 15.0),
-                  child: Container(
-                    width: MediaQuery.sizeOf(context).width * 1.0,
-                    child: TextFormField(
-                      controller: _model.imagelinkController,
-                      focusNode: _model.imagelinkFocusNode,
-                      onChanged: (_) => EasyDebounce.debounce(
-                        '_model.imagelinkController',
-                        Duration(milliseconds: 2000),
-                        () => setState(() {}),
-                      ),
-                      onFieldSubmitted: (_) async {
-                        setState(() {
-                          FFAppState().imagelink =
-                              _model.imagelinkController.text;
-                        });
-                      },
-                      textCapitalization: TextCapitalization.words,
-                      obscureText: false,
-                      decoration: InputDecoration(
-                        labelText: '請輸入圖片連結',
-                        labelStyle:
-                            FlutterFlowTheme.of(context).labelMedium.override(
-                                  fontFamily: 'Readex Pro',
-                                  fontSize: 16.0,
-                                ),
-                        hintStyle: FlutterFlowTheme.of(context).labelMedium,
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).alternate,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).primary,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).error,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).error,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        filled: true,
-                        fillColor:
-                            FlutterFlowTheme.of(context).secondaryBackground,
-                        contentPadding: EdgeInsetsDirectional.fromSTEB(
-                            20.0, 24.0, 0.0, 24.0),
-                        suffixIcon: _model.imagelinkController!.text.isNotEmpty
-                            ? InkWell(
-                                onTap: () async {
-                                  _model.imagelinkController?.clear();
-                                  setState(() {});
-                                },
-                                child: Icon(
-                                  Icons.clear,
-                                  color: Color(0xFF757575),
-                                  size: 22.0,
-                                ),
-                              )
-                            : null,
-                      ),
-                      style: FlutterFlowTheme.of(context).bodyMedium,
-                      validator: _model.imagelinkControllerValidator
-                          .asValidator(context),
-                    ),
-                  ),
-                ),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -688,7 +718,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                             EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 15.0),
                         child: FFButtonWidget(
                           onPressed: () async {
-                            context.safePop();
+                            await upimage();
                           },
                           text: '更新',
                           options: FFButtonOptions(

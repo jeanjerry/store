@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import '../order_1/order1_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -8,6 +11,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'order_model.dart';
 export 'order_model.dart';
+import 'package:http/http.dart' as http;
+import '/main.dart';
+import '/database/storeDB.dart'; // 引入自定義的 SQL 檔案
+import 'package:decimal/decimal.dart';
 
 class OrderWidget extends StatefulWidget {
   const OrderWidget({Key? key}) : super(key: key);
@@ -17,6 +24,52 @@ class OrderWidget extends StatefulWidget {
 }
 
 class _OrderWidgetState extends State<OrderWidget> {
+
+  getOrder(id) async {
+    var url = Uri.parse(ip+"contract/getOrder");
+
+    final responce = await http.post(url,body: {
+
+      "contractAddress": FFAppState().address,
+      "wallet": FFAppState().account,
+      "id": id,
+
+    });
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      return data;
+    }
+  }
+
+  List<Map<String, dynamic>> checkorderList = []; // 確定接單的訂單單號與店家合約
+  List<Map<String, dynamic>> orderList = []; // 訂單內容
+
+  Future<List> getorderList() async {//從資料庫得到有幾筆已接訂單
+    orderList.clear();
+    orderList = List.from(orderList);//使list變成可更改的
+    checkorderList = await dbHelper.dbGetcheckorder();
+    print("已接訂單長度:"+checkorderList.length.toString());
+    await dbHelper.dbResetOrder();// 重製訂單內容
+    for(int i = 0; i<checkorderList.length;i++){
+      var orderlist = await getOrder(checkorderList[i]["id"]);
+      Map<String, dynamic> A = {};//重要{}
+      A['id']=checkorderList[i]['id'];
+      A['consumer'] = checkorderList[i]["consumer_address"];
+      A['fee']= checkorderList[i]["fee"];
+      A['note']= orderlist["note"];
+      A['orderStatus']=orderlist["orderStatus"];
+      await dbHelper.dbInsertOrder(A); // 將訂單內容插入資料庫
+    }
+    orderList = await dbHelper.dbGetOrder();
+    print(orderList);
+    return orderList;
+  }
+
+
+
+
+
+  late DBHelper dbHelper; // DBHelper 實例
   late OrderModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -25,6 +78,7 @@ class _OrderWidgetState extends State<OrderWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => OrderModel());
+    dbHelper = DBHelper(); // 初始化 DBHelper
   }
 
   @override
@@ -113,278 +167,24 @@ class _OrderWidgetState extends State<OrderWidget> {
                     children: [
                       Container(
                         width: MediaQuery.sizeOf(context).width * 1.0,
-                        height: MediaQuery.sizeOf(context).height * 0.4,
+                        height: MediaQuery.sizeOf(context).height * 0.7 ,
                         decoration: BoxDecoration(
-                          color: Color(0xFFF1FF7E),
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 4.0,
-                              color: Color(0x33000000),
-                              offset: Offset(2.0, 6.0),
-                            )
-                          ],
-                          borderRadius: BorderRadius.circular(14.0),
+                          color: Color(0xFFF1F4F8),
+                          borderRadius: BorderRadius.circular(0.0),
                         ),
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            context.pushNamed('order-1');
+                        child:FutureBuilder<List>(
+                          future: getorderList(),
+                          builder: (ctx,ss) {
+                            if(ss.hasError){
+                              print("error");
+                            }
+                            if(ss.hasData){
+                              return Items(list:ss.data);
+                            }
+                            else{
+                              return CircularProgressIndicator();
+                            }
                           },
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    10.0, 0.0, 10.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 5.0, 0.0, 0.0),
-                                      child: AutoSizeText(
-                                        '單號 :',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              fontFamily: 'Readex Pro',
-                                              fontSize: 24.0,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          170.0, 5.0, 0.0, 0.0),
-                                      child: AutoSizeText(
-                                        '查看更多',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              fontFamily: 'Readex Pro',
-                                              fontSize: 24.0,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 5.0, 0.0, 0.0),
-                                      child: Icon(
-                                        Icons.arrow_forward_ios,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        size: 24.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    10.0, 10.0, 10.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    AutoSizeText(
-                                      '餐點內容 :',
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            fontFamily: 'Readex Pro',
-                                            fontSize: 24.0,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width: MediaQuery.sizeOf(context).width * 1.0,
-                                decoration: BoxDecoration(
-                                  color: Color(0xFFF1FF7E),
-                                  borderRadius: BorderRadius.circular(0.0),
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 4.0, 0.0, 12.0),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            flex: 3,
-                                            child: Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(8.0, 0.0, 4.0, 0.0),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(5.0, 0.0,
-                                                                0.0, 0.0),
-                                                    child: AutoSizeText(
-                                                      '食物變數 ',
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleLarge
-                                                              .override(
-                                                                fontFamily:
-                                                                    'Outfit',
-                                                                fontSize: 20.0,
-                                                              ),
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(5.0, 0.0,
-                                                                0.0, 0.0),
-                                                    child: AutoSizeText(
-                                                      '食物變數',
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleLarge
-                                                              .override(
-                                                                fontFamily:
-                                                                    'Outfit',
-                                                                fontSize: 20.0,
-                                                              ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 0.0, 5.0, 0.0),
-                                                child: AutoSizeText(
-                                                  'x1',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .titleLarge
-                                                      .override(
-                                                        fontFamily: 'Outfit',
-                                                        fontSize: 20.0,
-                                                      ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 0.0, 5.0, 0.0),
-                                                child: AutoSizeText(
-                                                  'x2',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .titleLarge
-                                                      .override(
-                                                        fontFamily: 'Outfit',
-                                                        fontSize: 20.0,
-                                                      ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    10.0, 10.0, 10.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    AutoSizeText(
-                                      '外送費 :  30元',
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            fontFamily: 'Readex Pro',
-                                            fontSize: 24.0,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    10.0, 10.0, 10.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Container(
-                                      width: MediaQuery.sizeOf(context).width *
-                                          0.96,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFFF1FF7E),
-                                      ),
-                                      child: AutoSizeText(
-                                        '地址 :  807高雄市三民區建工路415號',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              fontFamily: 'Readex Pro',
-                                              fontSize: 24.0,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                        minFontSize: 1.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    10.0, 10.0, 10.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    AutoSizeText(
-                                      '準備餐點中',
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            fontFamily: 'Readex Pro',
-                                            fontSize: 24.0,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     ],
@@ -395,6 +195,265 @@ class _OrderWidgetState extends State<OrderWidget> {
           ),
         ),
       ),
+    );
+  }
+}
+class Items extends StatelessWidget {
+
+  List? list;
+
+  Items({this.list});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget divider0 = const Divider(
+      color: Colors.red,
+      thickness: 3,
+    );
+    Widget divider1 = const Divider(
+      color: Colors.orange,
+      thickness: 3,
+    );
+    Widget divider2 = Divider(
+      color: Colors.yellow.shade600,
+      thickness: 3,
+    );
+    Widget divider3 = const Divider(
+      color: Colors.green,
+      thickness: 3,
+    );
+    Widget divider4 = const Divider(
+      color: Colors.blue,
+      thickness: 3,
+    );
+    Widget divider5 = Divider(
+      color: Colors.blue.shade900,
+      thickness: 3,
+    );
+    Widget divider6 = const Divider(
+      color: Colors.purple,
+      thickness: 3,
+    );
+    Widget ChooseDivider(int index) {
+      return index % 7 == 0
+          ? divider0
+          : index % 7 == 1
+          ? divider1
+          : index % 7 == 2
+          ? divider2
+          : index % 7 == 3
+          ? divider3
+          : index % 7 == 4
+          ? divider4
+          : index % 7 == 5
+          ? divider5
+          : divider6;
+    }
+    return ListView.separated(
+      itemCount: list!.length,  //列表的數量
+      itemBuilder: (ctx,i){    //列表的構建器
+        String str = "";
+        getorderStatus()  {
+          if(list![i]["orderStatus"]=='0'){
+            str = "等待店家回應";
+          }
+          else if(list![i]["orderStatus"]=='1'){
+            str = "尋找外送員中";
+          }
+          else if(list![i]["orderStatus"]=='2'){
+            str = "店家準備中";
+          }
+          else if (list![i]["orderStatus"]=='3'){
+            str = "外送員前往取餐";
+          }
+          else if (list![i]["orderStatus"]=='4'){
+            str = "外送員前往送餐";
+          }
+          else if (list![i]["orderStatus"]=='5'){
+            str = "等待消費者確認餐點";
+          }
+          else if (list![i]["orderStatus"]=='6'){
+            str = "已送達";
+          }
+          else if (list![i]["orderStatus"]=='7'){
+            str = "店家拒絕接單";
+          }
+          else if (list![i]["orderStatus"]=='8'){
+            str = "店家超時";
+          }
+          else if (list![i]["orderStatus"]=='9'){
+            str = "尋找外送員超時";
+          }
+          else if (list![i]["orderStatus"]=='10'){
+            str = "店家未完成訂單";
+          }
+          else if (list![i]["orderStatus"]=='11'){
+            str = "外送員未完成訂單";
+          }
+          else if (list![i]["orderStatus"]=='12'){
+            str = "取消訂單";
+          }
+          else if (list![i]["orderStatus"]=='13'){
+            str = "等待消費者確認店家準備時間";
+          }
+          return str;
+        }
+        str = getorderStatus();
+        //print("a"+list![i]["orderStatus"]);
+        return Container(
+          width: MediaQuery.sizeOf(context).width * 1.0,
+          height: MediaQuery.sizeOf(context).height * 0.3,
+          decoration: BoxDecoration(
+            color: Color(0xFFF1FF7E),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 4.0,
+                color: Color(0x33000000),
+                offset: Offset(2.0, 6.0),
+              )
+            ],
+            borderRadius: BorderRadius.circular(14.0),
+          ),
+          child: InkWell(
+            splashColor: Colors.transparent,
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () async {
+              Map<String, dynamic> C = await list![i];
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => Order1Widget(C: C, ),
+                ),
+              );
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                      10.0, 0.0, 10.0, 0.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            0.0, 5.0, 0.0, 0.0),
+                        child: AutoSizeText(
+                          '單號 :' + list![i]["id"],
+                          style: FlutterFlowTheme.of(context)
+                              .bodyMedium
+                              .override(
+                            fontFamily: 'Readex Pro',
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            150.0, 5.0, 0.0, 0.0),
+                        child: AutoSizeText(
+                          '查看更多',
+                          style: FlutterFlowTheme.of(context)
+                              .bodyMedium
+                              .override(
+                            fontFamily: 'Readex Pro',
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            0.0, 5.0, 0.0, 0.0),
+                        child: Icon(
+                          Icons.arrow_forward_ios,
+                          color: FlutterFlowTheme.of(context)
+                              .primaryText,
+                          size: 24.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                      10.0, 10.0, 10.0, 0.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      AutoSizeText(
+                        '外送費 : '+ list![i]["fee"]+' ETH',
+                        style: FlutterFlowTheme.of(context)
+                            .bodyMedium
+                            .override(
+                          fontFamily: 'Readex Pro',
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                      10.0, 10.0, 10.0, 0.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Container(
+                        width: MediaQuery.sizeOf(context).width * 0.89,
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF1FF7E),
+                        ),
+                        child: AutoSizeText(
+                          '地址 : '+list![i]["consumer"],
+                          style: FlutterFlowTheme.of(context)
+                              .bodyMedium
+                              .override(
+                            fontFamily: 'Readex Pro',
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          minFontSize: 1.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                      10.0, 10.0, 10.0, 0.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AutoSizeText(
+                        str,
+                        style: FlutterFlowTheme.of(context)
+                            .bodyMedium
+                            .override(
+                          fontFamily: 'Readex Pro',
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return ChooseDivider(index);
+      },
     );
   }
 }
