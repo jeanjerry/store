@@ -19,9 +19,9 @@ class MenuWidget extends StatefulWidget {
 }
 
 class _MenuWidgetState extends State<MenuWidget> {
-  String contractAddress = FFAppState().address;
-  String account = FFAppState().account;
-  String password = FFAppState().password;
+  String contractAddress = "";
+  String account = "";
+  String password = "";
 
   // 宣告csv檔
   List<List<dynamic>> csvData = [];
@@ -45,6 +45,10 @@ class _MenuWidgetState extends State<MenuWidget> {
     setState(() {
       isLoading = true;
     });
+
+    contractAddress = FFAppState().address;
+    account = FFAppState().account;
+    password = FFAppState().password;
 
     // 讀取csv檔
     menuPath = "/data/data/com.mycompany.store/menu";
