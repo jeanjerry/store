@@ -225,9 +225,9 @@ class _LoginWidgetState extends State<LoginWidget>
     var url = Uri.parse(ip+"signUp/check");
     final responce = await http.post(url,body: {
 
-      "storeWallet": FFAppState().account.toString(),
-      "storePassword": FFAppState().password.toString(),
-      "contractAddress": FFAppState().address.toString(),
+      "storeWallet": _model.emailAddressController.text,
+      "storePassword": _model.passwordController1.text,
+      "contractAddress": _model.addressController.text,
 
     });
 
