@@ -17,8 +17,8 @@ import 'package:provider/provider.dart';
 import 'login_model.dart';
 export 'login_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:geocoding_platform_interface/src/models/location.dart' as GeoLocation;
-
+import 'package:geocoding_platform_interface/src/models/location.dart'
+    as GeoLocation;
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({Key? key}) : super(key: key);
@@ -103,12 +103,10 @@ class _LoginWidgetState extends State<LoginWidget>
     ),
   };
 
-
   deploy() async {
-    var url = Uri.parse(ip+"deploy");
+    var url = Uri.parse(ip + "deploy");
 
-    final responce = await http.post(url,body: {
-
+    final responce = await http.post(url, body: {
       "storePassword": FFAppState().password,
       "storeName": FFAppState().storename,
       "storeAddress": FFAppState().storeaddress,
@@ -119,10 +117,9 @@ class _LoginWidgetState extends State<LoginWidget>
       "menuLink": FolderId,
       "storeEmail": FFAppState().email,
       "storeImageLink": ImageId,
-
     });
     if (responce.statusCode == 200) {
-      var data = json.decode(responce.body);//將json解碼為陣列形式
+      var data = json.decode(responce.body); //將json解碼為陣列形式
       setState(() {
         FFAppState().address = data["contractAddress"]; //獲取合約位置
         _model.addressController.text = FFAppState().address; //創好合約位置直接把值輸入登入框
@@ -131,28 +128,26 @@ class _LoginWidgetState extends State<LoginWidget>
   }
 
   Future<void> createAccount() async {
-
-    var url = Uri.parse(ip+"createAccount");
-    final responce = await http.post(url,body: {
-
+    var url = Uri.parse(ip + "createAccount");
+    final responce = await http.post(url, body: {
       "password": _model.passwordController1.text,
-
     });
     if (responce.statusCode == 200) {
-      var data = json.decode(responce.body);//將json解碼為陣列形式
-      print("店家帳號:"+data["account"]);
+      var data = json.decode(responce.body); //將json解碼為陣列形式
+      print("店家帳號:" + data["account"]);
 
       setState(() {
         FFAppState().account = data["account"]; //獲取合約位置
-        _model.emailAddressController.text = FFAppState().account; //創好帳號直接把值輸入登入框
+        _model.emailAddressController.text =
+            FFAppState().account; //創好帳號直接把值輸入登入框
         _model.passwordController2.text = FFAppState().password; //創好密碼直接把值輸入登入框
-
       });
     }
   }
 
   String _result = '';
-  _convertAddressToLatLng() async {  //把地址轉成經緯度
+  _convertAddressToLatLng() async {
+    //把地址轉成經緯度
     try {
       List<GeoLocation.Location> locations = await locationFromAddress(
         FFAppState().storeaddress,
@@ -161,7 +156,7 @@ class _LoginWidgetState extends State<LoginWidget>
         GeoLocation.Location first = locations.first;
         setState(() {
           //_result = '經度: ${first.latitude}, 緯度: ${first.longitude}';
-          _result= '${first.latitude}%2C${first.longitude}';
+          _result = '${first.latitude}%2C${first.longitude}';
         });
       } else {
         setState(() {
@@ -174,11 +169,12 @@ class _LoginWidgetState extends State<LoginWidget>
       });
     }
     print(_result);
-
   }
+
   var FolderId = '';
   var ImageId = '';
-  driveCreateFolder() async {  //創建雲端資料夾
+  driveCreateFolder() async {
+    //創建雲端資料夾
     var folderName = 'menu'; // 請替換為新資料夾的名稱
 
     var createdFolderId = await GoogleHelper.driveCreateFolder(folderName);
@@ -199,14 +195,15 @@ class _LoginWidgetState extends State<LoginWidget>
               TextButton(
                 onPressed: () async {
                   Navigator.of(context).pop(); // 關閉對話框
-                  var uploadImageId = await GoogleHelper.uploadImageToDrive(createdFolderId);
-                    setState(() {
-                      ImageId = uploadImageId.toString();
-                    });
-                    if(ImageId.isNotEmpty){
-                      await deploy();
-                      print("創建完成");
-                    }
+                  var uploadImageId =
+                      await GoogleHelper.uploadImageToDrive(createdFolderId);
+                  setState(() {
+                    ImageId = uploadImageId.toString();
+                  });
+                  if (ImageId.isNotEmpty) {
+                    await deploy();
+                    print("創建完成");
+                  }
                 },
                 child: Text("確定"),
               ),
@@ -221,20 +218,17 @@ class _LoginWidgetState extends State<LoginWidget>
   }
 
   Future<void> check() async {
-
-    var url = Uri.parse(ip+"signUp/check");
-    final responce = await http.post(url,body: {
-
-      "storeWallet": _model.emailAddressController.text,
-      "storePassword": _model.passwordController1.text,
-      "contractAddress": _model.addressController.text,
-
+    var url = Uri.parse(ip + "signUp/check");
+    final responce = await http.post(url, body: {
+      "storeWallet": FFAppState().account,
+      "storePassword": FFAppState().password,
+      "contractAddress": FFAppState().address,
     });
 
     if (responce.statusCode == 200) {
-      var data = json.decode(responce.body);//將json解碼為陣列形式
+      var data = json.decode(responce.body); //將json解碼為陣列形式
       print("帳號是否正確:${data['result'].toString()}");
-      if(data['result']==false){
+      if (data['result'] == false) {
         await showDialog(
           context: context,
           builder: (alertDialogContext) {
@@ -242,16 +236,14 @@ class _LoginWidgetState extends State<LoginWidget>
               title: Text('登入失敗'),
               actions: [
                 TextButton(
-                  onPressed: () =>
-                      Navigator.pop(alertDialogContext),
+                  onPressed: () => Navigator.pop(alertDialogContext),
                   child: Text('Ok'),
                 ),
               ],
             );
           },
         );
-      }
-      else{
+      } else {
         await showDialog(
           context: context,
           builder: (alertDialogContext) {
@@ -259,8 +251,7 @@ class _LoginWidgetState extends State<LoginWidget>
               title: Text('登入成功'),
               actions: [
                 TextButton(
-                  onPressed: () =>
-                      Navigator.pop(alertDialogContext),
+                  onPressed: () => Navigator.pop(alertDialogContext),
                   child: Text('Ok'),
                 ),
               ],
@@ -503,8 +494,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             .storeNameController,
                                                         focusNode: _model
                                                             .storeNameFocusNode,
-                                                        onFieldSubmitted:
-                                                            (_) async {
+                                                        onChanged: (_) async {
                                                           setState(() {
                                                             FFAppState()
                                                                     .storename =
@@ -622,8 +612,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             .storeAddressController,
                                                         focusNode: _model
                                                             .storeAddressFocusNode,
-                                                        onFieldSubmitted:
-                                                            (_) async {
+                                                        onChanged: (_) async {
                                                           setState(() {
                                                             FFAppState()
                                                                     .storeaddress =
@@ -741,8 +730,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             .storePhoneController,
                                                         focusNode: _model
                                                             .storePhoneFocusNode,
-                                                        onFieldSubmitted:
-                                                            (_) async {
+                                                        onChanged: (_) async {
                                                           setState(() {
                                                             FFAppState()
                                                                     .storephone =
@@ -860,8 +848,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             .storeEmailController,
                                                         focusNode: _model
                                                             .storeEmailFocusNode,
-                                                        onFieldSubmitted:
-                                                            (_) async {
+                                                        onChanged: (_) async {
                                                           setState(() {
                                                             FFAppState().email =
                                                                 _model
@@ -978,8 +965,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             .storeTagController,
                                                         focusNode: _model
                                                             .storeTagFocusNode,
-                                                        onFieldSubmitted:
-                                                            (_) async {
+                                                        onChanged: (_) async {
                                                           setState(() {
                                                             FFAppState().tag =
                                                                 _model
@@ -1096,8 +1082,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             .passwordController1,
                                                         focusNode: _model
                                                             .passwordFocusNode1,
-                                                        onFieldSubmitted:
-                                                            (_) async {
+                                                        onChanged: (_) async {
                                                           setState(() {
                                                             FFAppState()
                                                                     .password =
@@ -1201,10 +1186,17 @@ class _LoginWidgetState extends State<LoginWidget>
                                                     ),
                                                   ),
                                                   Align(
-                                                    alignment: AlignmentDirectional(0.0, 0.0),
+                                                    alignment:
+                                                        AlignmentDirectional(
+                                                            0.0, 0.0),
                                                     child: Padding(
                                                       padding:
-                                                      EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 16.0),
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  0.0,
+                                                                  16.0,
+                                                                  0.0,
+                                                                  16.0),
                                                       child: FFButtonWidget(
                                                         onPressed: () async {
                                                           await createAccount();
@@ -1214,8 +1206,16 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         text: '創建',
                                                         options:
                                                             FFButtonOptions(
-                                                              width: MediaQuery.sizeOf(context).width * 0.7,
-                                                              height: MediaQuery.sizeOf(context).height * 0.06,
+                                                          width:
+                                                              MediaQuery.sizeOf(
+                                                                          context)
+                                                                      .width *
+                                                                  0.7,
+                                                          height:
+                                                              MediaQuery.sizeOf(
+                                                                          context)
+                                                                      .height *
+                                                                  0.06,
                                                           padding:
                                                               EdgeInsetsDirectional
                                                                   .fromSTEB(
@@ -1304,58 +1304,119 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         ),
                                                   ),
                                                   Padding(
-                                                    padding: EdgeInsetsDirectional.fromSTEB(0, 14, 0, 14),
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(
+                                                                0, 14, 0, 14),
                                                     child: Container(
-                                                      width: MediaQuery.sizeOf(context).width,
+                                                      width: MediaQuery.sizeOf(
+                                                              context)
+                                                          .width,
                                                       child: TextFormField(
-                                                        controller: _model.addressController,
-                                                        focusNode: _model.addressFocusNode,
-                                                        onFieldSubmitted: (_) async {
+                                                        controller: _model
+                                                            .addressController,
+                                                        focusNode: _model
+                                                            .addressFocusNode,
+                                                        onChanged: (_) async {
                                                           setState(() {
-                                                            FFAppState().address = _model.addressController.text;
+                                                            FFAppState()
+                                                                    .address =
+                                                                _model
+                                                                    .addressController
+                                                                    .text;
                                                           });
                                                         },
                                                         autofocus: true,
-                                                        autofillHints: [AutofillHints.email],
+                                                        autofillHints: [
+                                                          AutofillHints.email
+                                                        ],
                                                         obscureText: false,
-                                                        decoration: InputDecoration(
+                                                        decoration:
+                                                            InputDecoration(
                                                           labelText: '合約位置',
-                                                          labelStyle: FlutterFlowTheme.of(context).labelLarge,
-                                                          enabledBorder: OutlineInputBorder(
-                                                            borderSide: BorderSide(
-                                                              color: FlutterFlowTheme.of(context).primaryBackground,
+                                                          labelStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .labelLarge,
+                                                          enabledBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryBackground,
                                                               width: 2,
                                                             ),
-                                                            borderRadius: BorderRadius.circular(40),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        40),
                                                           ),
-                                                          focusedBorder: OutlineInputBorder(
-                                                            borderSide: BorderSide(
-                                                              color: FlutterFlowTheme.of(context).primary,
+                                                          focusedBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primary,
                                                               width: 2,
                                                             ),
-                                                            borderRadius: BorderRadius.circular(40),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        40),
                                                           ),
-                                                          errorBorder: OutlineInputBorder(
-                                                            borderSide: BorderSide(
-                                                              color: FlutterFlowTheme.of(context).alternate,
+                                                          errorBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .alternate,
                                                               width: 2,
                                                             ),
-                                                            borderRadius: BorderRadius.circular(40),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        40),
                                                           ),
-                                                          focusedErrorBorder: OutlineInputBorder(
-                                                            borderSide: BorderSide(
-                                                              color: FlutterFlowTheme.of(context).alternate,
+                                                          focusedErrorBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .alternate,
                                                               width: 2,
                                                             ),
-                                                            borderRadius: BorderRadius.circular(40),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        40),
                                                           ),
                                                           filled: true,
-                                                          fillColor: FlutterFlowTheme.of(context).secondaryBackground,
-                                                          contentPadding: EdgeInsetsDirectional.fromSTEB(24, 24, 0, 24),
+                                                          fillColor: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondaryBackground,
+                                                          contentPadding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      24,
+                                                                      24,
+                                                                      0,
+                                                                      24),
                                                         ),
-                                                        style: FlutterFlowTheme.of(context).bodyLarge,
-                                                        keyboardType: TextInputType.emailAddress,
-                                                        validator: _model.addressControllerValidator.asValidator(context),
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyLarge,
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .emailAddress,
+                                                        validator: _model
+                                                            .addressControllerValidator
+                                                            .asValidator(
+                                                                context),
                                                       ),
                                                     ),
                                                   ),
@@ -1374,10 +1435,13 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             .emailAddressController,
                                                         focusNode: _model
                                                             .emailAddressFocusNode,
-                                                        onFieldSubmitted:
-                                                            (_) async {
+                                                        onChanged: (_) async {
                                                           setState(() {
-                                                            FFAppState().account = _model.emailAddressController.text;
+                                                            FFAppState()
+                                                                    .account =
+                                                                _model
+                                                                    .emailAddressController
+                                                                    .text;
                                                           });
                                                         },
                                                         autofocus: true,
@@ -1489,8 +1553,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             .passwordController2,
                                                         focusNode: _model
                                                             .passwordFocusNode2,
-                                                        onFieldSubmitted:
-                                                            (_) async {
+                                                        onChanged: (_) async {
                                                           setState(() {
                                                             FFAppState()
                                                                     .password =
@@ -1620,7 +1683,12 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             0.0, 0.0),
                                                     child: Padding(
                                                       padding:
-                                                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  0.0,
+                                                                  0.0,
+                                                                  0.0,
+                                                                  16.0),
                                                       child: FFButtonWidget(
                                                         onPressed: () async {
                                                           await check();
@@ -1629,9 +1697,15 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         options:
                                                             FFButtonOptions(
                                                           width:
-                                                              MediaQuery.sizeOf(context).width * 0.7,
+                                                              MediaQuery.sizeOf(
+                                                                          context)
+                                                                      .width *
+                                                                  0.7,
                                                           height:
-                                                              MediaQuery.sizeOf(context).height * 0.06,
+                                                              MediaQuery.sizeOf(
+                                                                          context)
+                                                                      .height *
+                                                                  0.06,
                                                           padding:
                                                               EdgeInsetsDirectional
                                                                   .fromSTEB(
