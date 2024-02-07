@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:csv/csv.dart';
 import 'dart:io';
 import 'dart:ui';
+import '/flutter_flow/flutter_flow_util.dart';
 
 import '../../api.dart';
 
@@ -18,9 +19,9 @@ class MenuWidget extends StatefulWidget {
 }
 
 class _MenuWidgetState extends State<MenuWidget> {
-  String contractAddress = "0x446d28cA6a3B64a0aA8f02d9506e67bc0258C73A";
-  String account = "0xe9d6410ed4ff7a317ca0428a85547addb9c9b8d2";
-  String password = "0";
+  String contractAddress = FFAppState().address;
+  String account = FFAppState().account;
+  String password = FFAppState().password;
 
   // 宣告csv檔
   List<List<dynamic>> csvData = [];
@@ -44,6 +45,7 @@ class _MenuWidgetState extends State<MenuWidget> {
     setState(() {
       isLoading = true;
     });
+
     // 讀取csv檔
     menuPath = "/data/data/com.mycompany.store/menu";
     Directory menuDirectory = Directory(menuPath);
