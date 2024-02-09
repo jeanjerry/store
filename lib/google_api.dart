@@ -366,6 +366,33 @@ class GoogleHelper {
     }
   }
 
+  static Future<void> downloadImage(
+      String fileId, String destinationPath, String rename) async {
+    if (_account == null || _authenticatedClient == null) {
+      await signIn();
+    }
+
+    try {
+      var driveApi = drive.DriveApi(_authenticatedClient!);
+      // 確認目標夾子存在
+      await Directory(destinationPath).create(recursive: true);
+
+      // 下載檔案
+      final drive.Media fileData = await driveApi.files.get(fileId,
+          downloadOptions: drive.DownloadOptions.fullMedia) as drive.Media;
+      final Stream<List<int>> stream = fileData.stream;
+      final localFile = File('$destinationPath/$rename');
+      final IOSink sink = localFile.openWrite();
+
+      await for (final chunk in stream) {
+        sink.add(chunk);
+      }
+      await sink.close();
+    } finally {
+      // 不要在這裡關閉 authenticatedClient
+    }
+  }
+
 
 
 

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:geocoding/geocoding.dart';
 
@@ -29,6 +31,15 @@ class SettingWidget extends StatefulWidget {
 
 class _SettingWidgetState extends State<SettingWidget> {
 
+  Timer? refreshTimer; //設定計時器
+
+  void startRefreshTimer() {
+    // 设置定时任务，每4分钟执行一次检查图片文件存在性的操作
+    refreshTimer = Timer.periodic(Duration(minutes: 1), (timer) {
+      // 重新检查图片文件存在性并更新UI
+      setState(() {});
+    });
+  }
 
   setStore() async {
     var url = Uri.parse(ip+"contract/setStore");
@@ -94,10 +105,47 @@ class _SettingWidgetState extends State<SettingWidget> {
     }
   }
 
+  setClosedStatus(String closedStatus) async {
+    var url = Uri.parse(ip+"contract/setClosedStatus");
+
+    final responce = await http.post(url,body: {
+
+      "contractAddress": FFAppState().address,
+      "storeWallet": FFAppState().account,
+      "storePassword": FFAppState().password,
+      "closedStatus": closedStatus,
+
+    });
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      print("是否更新店家狀態:$data");
+      return data;
+    }
+  }
+
+  Future getimage () async {
+    var image = await getStore();
+    print(image['storeImageLink']);
+    if (image['storeImageLink']!= " ") {
+      await GoogleHelper.downloadImage(
+          image['storeImageLink'].toString(),
+          "/data/data/com.mycompany.store/image",
+          FFAppState().address);
+      print("店家照片ok");
+    }
+    else{
+      print("照片讀取錯誤");
+    }
+  }
+
+  Future<bool> loadImage() async {
+    File imageFile = File("/data/data/com.mycompany.store/image/"+FFAppState().address);
+    return await imageFile.exists();
+  }
 
 
   var storeImageLink = '';
-  upimage() async {  //更新把圖片上傳到雲端資料夾
+  upimage() async {                  //更新把圖片上傳到雲端資料夾
     var Store = await getStore();
     await showDialog(  // 提示選擇圖片
               context: context,
@@ -143,7 +191,6 @@ class _SettingWidgetState extends State<SettingWidget> {
     }
 
 
-
   late SettingModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -174,12 +221,15 @@ class _SettingWidgetState extends State<SettingWidget> {
     _model.imagelinkController ??=
         TextEditingController(text: FFAppState().imagelink);
     _model.imagelinkFocusNode ??= FocusNode();
+
+    getimage();
+    startRefreshTimer();
   }
 
   @override
   void dispose() {
     _model.dispose();
-
+    refreshTimer?.cancel();// 在组件销毁时取消定时任务
     super.dispose();
   }
 
@@ -257,8 +307,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                       ),
                       onFieldSubmitted: (_) async {
                         setState(() {
-                          FFAppState().storename =
-                              _model.storenameController.text;
+                          FFAppState().storename = _model.storenameController.text;
                         });
                       },
                       textCapitalization: TextCapitalization.words,
@@ -707,6 +756,101 @@ class _SettingWidgetState extends State<SettingWidget> {
                     ),
                   ),
                 ),
+                Align(
+                  alignment: AlignmentDirectional(-1, -1),
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(22, 0, 0, 0),
+                    child: Text(
+                      '圖片連結:',
+                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                        fontFamily: 'Readex Pro',
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(20, 6, 20, 15),
+                  child: Container(
+                    width: MediaQuery.sizeOf(context).width,
+                    child: TextFormField(
+                      controller: _model.imagelinkController,
+                      focusNode: _model.imagelinkFocusNode,
+                      onChanged: (_) => EasyDebounce.debounce(
+                        '_model.imagelinkController',
+                        Duration(milliseconds: 2000),
+                            () => setState(() {}),
+                      ),
+                      onFieldSubmitted: (_) async {
+                        setState(() {
+                          FFAppState().imagelink =
+                              _model.imagelinkController.text;
+                        });
+                      },
+                      textCapitalization: TextCapitalization.words,
+                      obscureText: false,
+                      decoration: InputDecoration(
+                        labelText: '請輸入圖片連結',
+                        labelStyle:
+                        FlutterFlowTheme.of(context).labelMedium.override(
+                          fontFamily: 'Readex Pro',
+                          fontSize: 16,
+                        ),
+                        hintStyle: FlutterFlowTheme.of(context).labelMedium,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: FlutterFlowTheme.of(context).alternate,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: FlutterFlowTheme.of(context).primary,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: FlutterFlowTheme.of(context).error,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: FlutterFlowTheme.of(context).error,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        filled: true,
+                        fillColor:
+                        FlutterFlowTheme.of(context).secondaryBackground,
+                        contentPadding:
+                        EdgeInsetsDirectional.fromSTEB(20, 24, 0, 24),
+                        suffixIcon: _model.imagelinkController!.text.isNotEmpty
+                            ? InkWell(
+                          onTap: () async {
+                            _model.imagelinkController?.clear();
+                            setState(() {});
+                          },
+                          child: Icon(
+                            Icons.clear,
+                            color: Color(0xFF757575),
+                            size: 22,
+                          ),
+                        )
+                            : null,
+                      ),
+                      style: FlutterFlowTheme.of(context).bodyMedium,
+                      validator: _model.imagelinkControllerValidator
+                          .asValidator(context),
+                    ),
+                  ),
+                ),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -715,7 +859,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                       alignment: AlignmentDirectional(0.0, 0.05),
                       child: Padding(
                         padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 15.0),
+                            EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 15.0),
                         child: FFButtonWidget(
                           onPressed: () async {
                             await upimage();
@@ -749,7 +893,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                       alignment: AlignmentDirectional(0.0, 0.05),
                       child: Padding(
                         padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 15.0),
+                            EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 15.0),
                         child: FFButtonWidget(
                           onPressed: () async {
                             Navigator.pop(context);
@@ -780,6 +924,106 @@ class _SettingWidgetState extends State<SettingWidget> {
                       ),
                     ),
                   ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Align(
+                      alignment: AlignmentDirectional(0, 0.05),
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 15),
+                        child: FFButtonWidget(
+                          onPressed: () async {
+                            var Status = "true" ;
+                            await setClosedStatus(Status);
+                          },
+                          text: '開店',
+                          options: FFButtonOptions(
+                            width: MediaQuery.sizeOf(context).width * 0.4,
+                            height: MediaQuery.sizeOf(context).height * 0.05,
+                            padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                            iconPadding:
+                            EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                            color: Color(0xFF77FD77),
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleLarge
+                                .override(
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w600,
+                            ),
+                            elevation: 2,
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: AlignmentDirectional(0, 0.05),
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 15),
+                        child: FFButtonWidget(
+                          onPressed: () async {
+                            var Status = "false" ;
+                            await setClosedStatus(Status);
+                          },
+                          text: '關店',
+                          options: FFButtonOptions(
+                            width: MediaQuery.sizeOf(context).width * 0.4,
+                            height: MediaQuery.sizeOf(context).height * 0.05,
+                            padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                            iconPadding:
+                            EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                            color: FlutterFlowTheme.of(context).error,
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleLarge
+                                .override(
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w600,
+                            ),
+                            elevation: 2,
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: FutureBuilder<bool>(
+                      future: loadImage(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (snapshot.data == true) {
+                            // If image file exists, display Image widget
+                            return Image.file(
+                              File("/data/data/com.mycompany.store/image/"+FFAppState().address),
+                              width: MediaQuery.sizeOf(context).width * 0.9,
+                              height: MediaQuery.sizeOf(context).height * 0.2,
+                              fit: BoxFit.cover,
+                            );
+                          } else {
+                            // If image file doesn't exist, display CircularProgressIndicator
+                            return CircularProgressIndicator();
+                          }
+                        } else {
+                          // Loading indicator while checking file existence
+                          return CircularProgressIndicator();
+                        }
+                      },
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -59,6 +59,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     }
   }
 
+
   getOrderContent(id) async {
     var url = Uri.parse(ip+"contract/getOrderContent");
 
@@ -80,6 +81,21 @@ class _HomeWidgetState extends State<HomeWidget> {
         List<String> myList =orderList[0]['consumer'].split(',');
         print(myList[1]);*///範例
 
+  getStore() async {
+    var url = Uri.parse(ip+"contract/getStore");
+
+    final responce = await http.post(url,body: {
+
+      "contractAddress": FFAppState().address,
+      "wallet": FFAppState().account,
+
+    });
+    if (responce.statusCode == 200) {
+      var data = json.decode(responce.body);//將json解碼為陣列形式
+      return data;
+    }
+  }
+
 
   List<Map<String, dynamic>> orderList = []; // 訂單內容
   Future<List> getlist() async {
@@ -100,6 +116,14 @@ class _HomeWidgetState extends State<HomeWidget> {
         await dbHelper.dbInsertStore(A); // 將訂單內容插入資料庫
       }
     }
+          var image = await getStore();  //設定那邊顯示資料庫的值
+          FFAppState().storename = image["storeName"];
+          FFAppState().storeaddress = image["storeAddress"];
+          FFAppState().storephone = image["storePhone"];
+          FFAppState().tag = image["storeTag"];
+          FFAppState().email = image["storeEmail"];
+          FFAppState().imagelink = image["storeImageLink"];
+
     orderList = await dbHelper.dbGetStores();
     //print(orderList);
     return orderList;
