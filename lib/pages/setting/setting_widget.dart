@@ -33,13 +33,13 @@ class _SettingWidgetState extends State<SettingWidget> {
 
   Timer? refreshTimer; //設定計時器
 
-  void startRefreshTimer() {
+  /*void startRefreshTimer() {
     // 设置定时任务，每4分钟执行一次检查图片文件存在性的操作
     refreshTimer = Timer.periodic(Duration(minutes: 1), (timer) {
       // 重新检查图片文件存在性并更新UI
       setState(() {});
     });
-  }
+  }*/
 
   setStore() async {
     var url = Uri.parse(ip+"contract/setStore");
@@ -55,7 +55,7 @@ class _SettingWidgetState extends State<SettingWidget> {
       "storeTag": FFAppState().tag,
       "latitudeAndLongitude": _result,
       "storeEmail": FFAppState().email,
-      "storeImageLink": storeImageLink,
+      "storeImageLink": FFAppState().imageid,
 
     });
     if (responce.statusCode == 200) {
@@ -118,7 +118,7 @@ class _SettingWidgetState extends State<SettingWidget> {
     });
     if (responce.statusCode == 200) {
       var data = json.decode(responce.body);//將json解碼為陣列形式
-      print("是否更新店家狀態:$data");
+      print("是否更新店家狀態:"+data["status"]);
       return data;
     }
   }
@@ -130,7 +130,7 @@ class _SettingWidgetState extends State<SettingWidget> {
       await GoogleHelper.downloadImage(
           image['storeImageLink'].toString(),
           "/data/data/com.mycompany.store/image",
-          FFAppState().address);
+          image['storeImageLink']);
       print("店家照片ok");
     }
     else{
@@ -139,47 +139,52 @@ class _SettingWidgetState extends State<SettingWidget> {
   }
 
   Future<bool> loadImage() async {
-    File imageFile = File("/data/data/com.mycompany.store/image/"+FFAppState().address);
+    File imageFile = File("/data/data/com.mycompany.store/image/"+FFAppState().imageid);
     return await imageFile.exists();
   }
 
+  Dialog() async {
+    await showDialog(
+      context: context,
+      builder: (alertDialogContext) {
+        return AlertDialog(
+          title: Text('更新完成'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(alertDialogContext),
+              child: Text('Ok'),
+            ),
+          ],
+        );
+      },
+    );
+    setState(() {}); //讓UI刷新
+  }
 
-  var storeImageLink = '';
-  upimage() async {                  //更新把圖片上傳到雲端資料夾
+  bool state = true ;
+  upimage() async {//更新把圖片上傳到雲端資料夾
     var Store = await getStore();
     await showDialog(  // 提示選擇圖片
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text("受否要上傳圖片"),
+                  title: Text("是否要上傳圖片"),
                   actions: [
                     TextButton(
                       onPressed: () async {
-                        Navigator.of(context).pop(); // 關閉對話框
-                        await _convertAddressToLatLng();
-                        var StoreImageLink = await Store["storeImageLink"];
                         setState(() {
-                          storeImageLink = StoreImageLink.toString();
+                          state = false ;
                         });
-                        if(storeImageLink.isNotEmpty){
-                          await setStore();
-                          print("更新完成");
-                        }
+                        Navigator.of(context).pop(); // 關閉對話框
                       },
                       child: Text("不要"),
                     ),
                     TextButton(
                       onPressed: () async {
-                        Navigator.of(context).pop(); // 關閉對話框
-                        await _convertAddressToLatLng();
-                        var uploadImageId = await GoogleHelper.uploadImageToDrive(Store["menuLink"]);
                         setState(() {
-                          storeImageLink = uploadImageId.toString();
+                          state = true ;
                         });
-                        if(storeImageLink.isNotEmpty){
-                          await setStore();
-                          print("更新完成");
-                        }
+                        Navigator.of(context).pop(); // 關閉對話框
                       },
                       child: Text("確定"),
                     ),
@@ -187,8 +192,32 @@ class _SettingWidgetState extends State<SettingWidget> {
                 );
               },
             );
-      //print(uploadImageId);
+    if(state == false){
+      await _convertAddressToLatLng();
+      var StoreImageLink = await Store["storeImageLink"];
+      setState(() {
+        FFAppState().imageid = StoreImageLink.toString();
+      });
+      if(FFAppState().imageid.isNotEmpty){
+        await setStore();
+        await Dialog();
+        print("更新完成不要");
+      }
     }
+    else if (state == true){
+      await _convertAddressToLatLng();
+      var uploadImageId = await GoogleHelper.uploadImageToDrive(Store["menuLink"]);
+      setState(() {
+        FFAppState().imageid = uploadImageId.toString() ;
+      });
+      if(FFAppState().imageid.isNotEmpty){
+        await setStore();
+        await getimage();
+        await Dialog();
+        print("更新完成確定");
+      }
+    }
+  }
 
 
   late SettingModel _model;
@@ -223,7 +252,7 @@ class _SettingWidgetState extends State<SettingWidget> {
     _model.imagelinkFocusNode ??= FocusNode();
 
     getimage();
-    startRefreshTimer();
+    //startRefreshTimer();
   }
 
   @override
@@ -756,101 +785,6 @@ class _SettingWidgetState extends State<SettingWidget> {
                     ),
                   ),
                 ),
-                Align(
-                  alignment: AlignmentDirectional(-1, -1),
-                  child: Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(22, 0, 0, 0),
-                    child: Text(
-                      '圖片連結:',
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                        fontFamily: 'Readex Pro',
-                        fontSize: 22,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(20, 6, 20, 15),
-                  child: Container(
-                    width: MediaQuery.sizeOf(context).width,
-                    child: TextFormField(
-                      controller: _model.imagelinkController,
-                      focusNode: _model.imagelinkFocusNode,
-                      onChanged: (_) => EasyDebounce.debounce(
-                        '_model.imagelinkController',
-                        Duration(milliseconds: 2000),
-                            () => setState(() {}),
-                      ),
-                      onFieldSubmitted: (_) async {
-                        setState(() {
-                          FFAppState().imagelink =
-                              _model.imagelinkController.text;
-                        });
-                      },
-                      textCapitalization: TextCapitalization.words,
-                      obscureText: false,
-                      decoration: InputDecoration(
-                        labelText: '請輸入圖片連結',
-                        labelStyle:
-                        FlutterFlowTheme.of(context).labelMedium.override(
-                          fontFamily: 'Readex Pro',
-                          fontSize: 16,
-                        ),
-                        hintStyle: FlutterFlowTheme.of(context).labelMedium,
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).alternate,
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).primary,
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).error,
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).error,
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        filled: true,
-                        fillColor:
-                        FlutterFlowTheme.of(context).secondaryBackground,
-                        contentPadding:
-                        EdgeInsetsDirectional.fromSTEB(20, 24, 0, 24),
-                        suffixIcon: _model.imagelinkController!.text.isNotEmpty
-                            ? InkWell(
-                          onTap: () async {
-                            _model.imagelinkController?.clear();
-                            setState(() {});
-                          },
-                          child: Icon(
-                            Icons.clear,
-                            color: Color(0xFF757575),
-                            size: 22,
-                          ),
-                        )
-                            : null,
-                      ),
-                      style: FlutterFlowTheme.of(context).bodyMedium,
-                      validator: _model.imagelinkControllerValidator
-                          .asValidator(context),
-                    ),
-                  ),
-                ),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -896,7 +830,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                             EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 15.0),
                         child: FFButtonWidget(
                           onPressed: () async {
-                            Navigator.pop(context);
+                            context.pushNamed('login');
                           },
                           text: '登出',
                           options: FFButtonOptions(
@@ -935,7 +869,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                         padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 15),
                         child: FFButtonWidget(
                           onPressed: () async {
-                            var Status = "true" ;
+                            var Status = "false" ;
                             await setClosedStatus(Status);
                           },
                           text: '開店',
@@ -968,7 +902,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                         padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 15),
                         child: FFButtonWidget(
                           onPressed: () async {
-                            var Status = "false" ;
+                            var Status = "true" ;
                             await setClosedStatus(Status);
                           },
                           text: '關店',
@@ -1008,7 +942,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                           if (snapshot.data == true) {
                             // If image file exists, display Image widget
                             return Image.file(
-                              File("/data/data/com.mycompany.store/image/"+FFAppState().address),
+                              File("/data/data/com.mycompany.store/image/"+FFAppState().imageid),
                               width: MediaQuery.sizeOf(context).width * 0.9,
                               height: MediaQuery.sizeOf(context).height * 0.2,
                               fit: BoxFit.cover,

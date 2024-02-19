@@ -53,6 +53,9 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _imagelink = prefs.getString('ff_imagelink') ?? _imagelink;
     });
+    _safeInit(() {
+      _imageid = prefs.getString('ff_imageid') ?? _imageid;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -144,6 +147,13 @@ class FFAppState extends ChangeNotifier {
   set imagelink(String _value) {
     _imagelink = _value;
     prefs.setString('ff_imagelink', _value);
+  }
+
+  String _imageid = '';
+  String get imageid => _imageid;
+  set imageid(String _value) {
+    _imageid = _value;
+    prefs.setString('ff_imageid', _value);
   }
 }
 

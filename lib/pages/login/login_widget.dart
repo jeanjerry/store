@@ -116,7 +116,7 @@ class _LoginWidgetState extends State<LoginWidget>
       "latitudeAndLongitude": _result,
       "menuLink": FolderId,
       "storeEmail": FFAppState().email,
-      "storeImageLink": ImageId,
+      "storeImageLink": FFAppState().imageid,
     });
     if (responce.statusCode == 200) {
       var data = json.decode(responce.body); //將json解碼為陣列形式
@@ -194,16 +194,7 @@ class _LoginWidgetState extends State<LoginWidget>
             actions: [
               TextButton(
                 onPressed: () async {
-                  Navigator.of(context).pop(); // 關閉對話框
-                  var uploadImageId =
-                      await GoogleHelper.uploadImageToDrive(createdFolderId);
-                  setState(() {
-                    ImageId = uploadImageId.toString();
-                  });
-                  if (ImageId.isNotEmpty) {
-                    await deploy();
-                    print("創建完成");
-                  }
+                  Navigator.of(context).pop(); // 关闭选择图片的对话框
                 },
                 child: Text("確定"),
               ),
@@ -211,10 +202,38 @@ class _LoginWidgetState extends State<LoginWidget>
           );
         },
       );
+      var uploadImageId = await GoogleHelper.uploadImageToDrive(createdFolderId);
+      setState(() {
+        FFAppState().imageid = uploadImageId.toString();
+      });
+
+      if (ImageId.isNotEmpty) {
+        await deploy();
+        await Dialog();
+        print("創建完成");
+      }
       //print(uploadImageId);
-    } else {
+    }
+    else {
       // 資料夾創建失敗，處理錯誤
     }
+  }
+
+  Dialog() async {
+    await showDialog(
+    context: context,
+    builder: (alertDialogContext) {
+      return AlertDialog(
+        title: Text('創建完成'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(alertDialogContext),
+            child: Text('Ok'),
+          ),
+        ],
+      );
+    },
+    );
   }
 
   Future<void> check() async {

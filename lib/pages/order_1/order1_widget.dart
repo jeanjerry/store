@@ -140,7 +140,7 @@ class _Order1WidgetState extends State<Order1Widget> {
 
 
 
-
+  bool isButtonPressed = false; //控制按鈕狀態
   late DBHelper dbHelper; // DBHelper 實例
   late Order1Model _model;
 
@@ -266,9 +266,15 @@ class _Order1WidgetState extends State<Order1Widget> {
                           shape: BoxShape.rectangle,
                         ),
                         child: FFButtonWidget(
-                          onPressed: () async {
+                          onPressed: isButtonPressed ? null : () async {
+                            // 按鈕未被按下時執行的操作
                             await storePrepared();
                             //await getImage();
+
+                            // 設置按鈕為已被按下
+                            setState(() {
+                              isButtonPressed = true;
+                            });
                           },
                           text: '餐點準備完成',
                           options: FFButtonOptions(

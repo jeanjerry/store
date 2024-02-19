@@ -98,6 +98,7 @@ class _Home1WidgetState extends State<Home1Widget> {
     });
     if (responce.statusCode == 200) {
       var data = json.decode(responce.body);//將json解碼為陣列形式
+      await context.pushNamed('home');
       print("拒絕訂單");
     }
   }
@@ -515,7 +516,6 @@ class _Home1WidgetState extends State<Home1Widget> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     String inputValue = '';
-
                                     return AlertDialog(
                                       title: Text('請填寫準備時間'),
                                       content: TextFormField(
@@ -530,8 +530,6 @@ class _Home1WidgetState extends State<Home1Widget> {
                                             print('輸入的值為: $inputValue');
                                             Navigator.of(context).pop();
                                             await setPreparationTime(inputValue);
-                                            await storeAcceptOrder_true();
-                                            await checkorder();
                                           },
                                           child: Text('確定'),
                                         ),
@@ -539,6 +537,8 @@ class _Home1WidgetState extends State<Home1Widget> {
                                     );
                                   },
                                 );
+                                await storeAcceptOrder_true();
+                                await checkorder();
                               },
                               text: '接受',
                               options: FFButtonOptions(
