@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:store/google_api.dart';
 import 'package:store/api.dart';
-import 'package:store/pages/menu/menu_widget.dart';
 
 class Menu1Widget extends StatefulWidget {
   const Menu1Widget({
