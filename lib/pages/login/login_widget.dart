@@ -207,7 +207,7 @@ class _LoginWidgetState extends State<LoginWidget>
         FFAppState().imageid = uploadImageId.toString();
       });
 
-      if (ImageId.isNotEmpty) {
+      if (FFAppState().imageid.isNotEmpty) {
         await deploy();
         await Dialog();
         print("創建完成");
