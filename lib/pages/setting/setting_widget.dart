@@ -118,7 +118,7 @@ class _SettingWidgetState extends State<SettingWidget> {
     });
     if (responce.statusCode == 200) {
       var data = json.decode(responce.body);//將json解碼為陣列形式
-      print("是否更新店家狀態:"+data["status"]);
+      print("是否更新店家狀態:"+data["status"].toString());
       return data;
     }
   }
