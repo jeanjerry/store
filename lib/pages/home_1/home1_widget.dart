@@ -517,7 +517,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                                   builder: (BuildContext context) {
                                     String inputValue = '';
                                     return AlertDialog(
-                                      title: Text('請填寫準備時間'),
+                                      title: Text('請填寫準備時間(分鐘)'),
                                       content: TextFormField(
                                         onChanged: (value) {
                                           inputValue = value;
