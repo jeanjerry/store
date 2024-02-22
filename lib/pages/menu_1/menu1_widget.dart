@@ -308,8 +308,9 @@ class _Menu1WidgetState extends State<Menu1Widget> {
           ),
         ),
         ElevatedButton(
-            onPressed: () {
-              addClassification(categoryName);
+            onPressed: () async {
+              await addClassification(categoryName);
+              setState(() {});
             },
             child: const Text("新增類別", style: TextStyle(color: Colors.blue))),
         const SizedBox(height: 15),
@@ -361,6 +362,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
           child: IconButton(
             onPressed: () async {
               await addFirstItem(categoryName, key);
+              setState(() {});
             },
             icon: const Icon(Icons.add_circle),
             color: Colors.blue,
