@@ -33,8 +33,7 @@ class Order1Widget extends StatefulWidget {
 
 class _Order1WidgetState extends State<Order1Widget> {
 
-  Timer? refreshTimer;
-  Timer? refreshTimer_1;
+
 
   Future<void> checkAndRequestPermissions() async {
     var status = await Permission.storage.status;
@@ -105,14 +104,33 @@ class _Order1WidgetState extends State<Order1Widget> {
   }
 
 
+
   getImage() async {   //店家是否準備好餐點
-     refreshTimer_1 = Timer.periodic(Duration(minutes: 3), (Timer timer) async {
-      await checkAndRequestPermissions();  //確認權限
-      await GoogleHelper.gmailGetMessage(FFAppState().address,widget.C["id"],"取餐照片");
-      print("取餐照片完成");
-      await GoogleHelper.gmailGetMessage(FFAppState().address,widget.C["id"],"送達照片");
-      print("送達照片完成");
-    });
+    File filePath1 = File("/data/data/com.mycompany.store/confirm_picture/"+FFAppState().address+"-"+widget.C["id"]+"-"+"取餐照片-0");
+    File filePath2 = File("/data/data/com.mycompany.store/confirm_picture/"+FFAppState().address+"-"+widget.C["id"]+"-"+"送達照片-0");
+    print("sadas");
+     //Timer.periodic(Duration(seconds: 25), (Timer timer) async {
+
+      if ( filePath1.existsSync() &&  filePath2.existsSync()) {
+        print('文件路径有效，且文件存在。');
+        //timer.cancel();
+      } else if (  filePath1.existsSync() ){
+          await checkAndRequestPermissions();  //確認權限
+          await GoogleHelper.gmailGetMessage(FFAppState().address,widget.C["id"],"送達照片");
+          print("送達照片完成");
+          setState(() {});
+      }
+      else {
+        await checkAndRequestPermissions();  //確認權限
+        await GoogleHelper.gmailGetMessage(FFAppState().address,widget.C["id"],"取餐照片");
+        print("取餐照片完成");
+        setState(() {});
+        await GoogleHelper.gmailGetMessage(FFAppState().address,widget.C["id"],"送達照片");
+        print("送達照片完成");
+        setState(() {});
+        print('文件路径为空或文件不存在。');
+      }
+    //});
   }
 
 
@@ -152,23 +170,16 @@ class _Order1WidgetState extends State<Order1Widget> {
     _model = createModel(context, () => Order1Model());
     dbHelper = DBHelper(); // 初始化 DBHelper
     getImage();
-    // 在 initState 中启动定时器
-    startRefreshTimer();
-  }
+    setState(() {
 
-  void startRefreshTimer() {
-    // 设置定时任务，每4分钟执行一次检查图片文件存在性的操作
-    refreshTimer = Timer.periodic(Duration(minutes: 4), (timer) {
-      // 重新检查图片文件存在性并更新UI
-      setState(() {});
     });
   }
+
+
 
   @override
   void dispose() {
     _model.dispose();
-    refreshTimer?.cancel();// 在组件销毁时取消定时任务
-    refreshTimer_1?.cancel();// 在组件销毁时取消定时任务
     super.dispose();
   }
 

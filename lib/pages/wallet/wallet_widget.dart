@@ -83,6 +83,7 @@ class _WalletWidgetState extends State<WalletWidget>
         A['foodCost']=(Decimal.parse(orderlist["foodCost"]) / Decimal.parse('1e18'))
             .toDouble()
             .toString();
+        A['id']=orderlist["id"];
         await dbHelper.dbInsertwallet(A);
       }
     }
@@ -432,7 +433,7 @@ class Items extends StatelessWidget {
                       CrossAxisAlignment.start,
                       children: [
                         AutoSizeText(
-                          "總金額",
+                          "單號: "+list![i]["id"]+" 總金額",
                           style: FlutterFlowTheme.of(context)
                               .bodyLarge
                               .override(

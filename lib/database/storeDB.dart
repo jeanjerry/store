@@ -55,7 +55,8 @@ class DBHelper {
         ''');
         await db.execute('''
           CREATE TABLE IF NOT EXISTS wallets (
-            foodCost TEXT
+            foodCost TEXT,
+            id TEXT
           )
         ''');
       },
