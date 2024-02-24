@@ -252,7 +252,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '單號 : '+widget.A['id'],
+                                'Order number: '+widget.A['id'],
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
@@ -262,7 +262,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                                     ),
                               ),
                               Text(
-                                '餐點內容 :',
+                                'Meal content:',
                                 style: FlutterFlowTheme.of(context)
                                     .titleLarge
                                     .override(
@@ -323,7 +323,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             AutoSizeText(
-                                              '外送費 : ',
+                                              'Delivery fee: ',
                                               style:
                                                   FlutterFlowTheme.of(context)
                                                       .titleLarge
@@ -357,7 +357,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                                           .secondaryBackground,
                                     ),
                                     child: AutoSizeText(
-                                      '消費者地址 : '+ myList[1],
+                                      'Consumer address: '+ myList[1],
                                       style: FlutterFlowTheme.of(context)
                                           .titleLarge
                                           .override(
@@ -397,7 +397,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '備註',
+                                'Remark',
                                 style: FlutterFlowTheme.of(context).titleLarge,
                               ),
                               Padding(
@@ -435,7 +435,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                             );
                             //context.pushNamed('message');
                           },
-                          text: '聊天室',
+                          text: 'chatroom',
                           options: FFButtonOptions(
                             width: MediaQuery.sizeOf(context).width * 1.0,
                             height: MediaQuery.sizeOf(context).height * 0.06,
@@ -476,7 +476,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                               onPressed: () async {
                                 await storeAcceptOrder_false();
                               },
-                              text: '拒絕',
+                              text: 'reject',
                               options: FFButtonOptions(
                                 width: MediaQuery.sizeOf(context).width * 0.4,
                                 height:
@@ -517,7 +517,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                                   builder: (BuildContext context) {
                                     String inputValue = '';
                                     return AlertDialog(
-                                      title: Text('請填寫準備時間(分鐘)'),
+                                      title: Text('Please fill in the preparation time (minutes)'),
                                       content: TextFormField(
                                         onChanged: (value) {
                                           inputValue = value;
@@ -531,7 +531,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                                             Navigator.of(context).pop();
                                             await setPreparationTime(inputValue);
                                           },
-                                          child: Text('確定'),
+                                          child: Text('Sure'),
                                         ),
                                       ],
                                     );
@@ -540,7 +540,7 @@ class _Home1WidgetState extends State<Home1Widget> {
                                 await storeAcceptOrder_true();
                                 await checkorder();
                               },
-                              text: '接受',
+                              text: 'accept',
                               options: FFButtonOptions(
                                 width: MediaQuery.sizeOf(context).width * 0.4,
                                 height: MediaQuery.sizeOf(context).height * 0.06,

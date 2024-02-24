@@ -149,7 +149,7 @@ class _SettingWidgetState extends State<SettingWidget> {
       context: context,
       builder: (alertDialogContext) {
         return AlertDialog(
-          title: Text('更新完成'),
+          title: Text('update completed'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(alertDialogContext),
@@ -169,7 +169,7 @@ class _SettingWidgetState extends State<SettingWidget> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text("是否要上傳圖片"),
+                  title: Text("Do you want to upload pictures?"),
                   actions: [
                     TextButton(
                       onPressed: () async {
@@ -178,7 +178,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                         });
                         Navigator.of(context).pop(); // 關閉對話框
                       },
-                      child: Text("不要"),
+                      child: Text("no"),
                     ),
                     TextButton(
                       onPressed: () async {
@@ -187,7 +187,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                         });
                         Navigator.of(context).pop(); // 關閉對話框
                       },
-                      child: Text("確定"),
+                      child: Text("yse"),
                     ),
                   ],
                 );
@@ -314,7 +314,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                     padding:
                         EdgeInsetsDirectional.fromSTEB(22.0, 20.0, 0.0, 0.0),
                     child: Text(
-                      '店名:',
+                      'Store name:',
                       style: FlutterFlowTheme.of(context).bodyMedium.override(
                             fontFamily: 'Readex Pro',
                             fontSize: 22.0,
@@ -343,7 +343,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                       textCapitalization: TextCapitalization.words,
                       obscureText: false,
                       decoration: InputDecoration(
-                        labelText: '請輸入店名',
+                        labelText: 'Please enter store name',
                         labelStyle:
                             FlutterFlowTheme.of(context).labelMedium.override(
                                   fontFamily: 'Readex Pro',
@@ -409,7 +409,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                     padding:
                         EdgeInsetsDirectional.fromSTEB(22.0, 0.0, 0.0, 0.0),
                     child: Text(
-                      '地址:',
+                      'address:',
                       style: FlutterFlowTheme.of(context).bodyMedium.override(
                             fontFamily: 'Readex Pro',
                             fontSize: 22.0,
@@ -439,7 +439,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                       textCapitalization: TextCapitalization.words,
                       obscureText: false,
                       decoration: InputDecoration(
-                        labelText: '請輸入地址',
+                        labelText: 'Please enter address',
                         labelStyle:
                             FlutterFlowTheme.of(context).labelMedium.override(
                                   fontFamily: 'Readex Pro',
@@ -506,7 +506,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                     padding:
                         EdgeInsetsDirectional.fromSTEB(22.0, 0.0, 0.0, 0.0),
                     child: Text(
-                      '電話:',
+                      'Telephone:',
                       style: FlutterFlowTheme.of(context).bodyMedium.override(
                             fontFamily: 'Readex Pro',
                             fontSize: 22.0,
@@ -536,7 +536,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                       textCapitalization: TextCapitalization.words,
                       obscureText: false,
                       decoration: InputDecoration(
-                        labelText: '請輸入電話',
+                        labelText: 'Please enter phone number',
                         labelStyle:
                             FlutterFlowTheme.of(context).labelMedium.override(
                                   fontFamily: 'Readex Pro',
@@ -602,7 +602,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                     padding:
                         EdgeInsetsDirectional.fromSTEB(22.0, 0.0, 0.0, 0.0),
                     child: Text(
-                      '標籤:',
+                      'Label:',
                       style: FlutterFlowTheme.of(context).bodyMedium.override(
                             fontFamily: 'Readex Pro',
                             fontSize: 22.0,
@@ -631,7 +631,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                       textCapitalization: TextCapitalization.words,
                       obscureText: false,
                       decoration: InputDecoration(
-                        labelText: '請輸入標籤',
+                        labelText: 'Please enter tag',
                         labelStyle:
                             FlutterFlowTheme.of(context).labelMedium.override(
                                   fontFamily: 'Readex Pro',
@@ -697,7 +697,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                     padding:
                         EdgeInsetsDirectional.fromSTEB(22.0, 0.0, 0.0, 0.0),
                     child: Text(
-                      '信箱:',
+                      'mailbox:',
                       style: FlutterFlowTheme.of(context).bodyMedium.override(
                             fontFamily: 'Readex Pro',
                             fontSize: 22.0,
@@ -726,7 +726,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                       textCapitalization: TextCapitalization.words,
                       obscureText: false,
                       decoration: InputDecoration(
-                        labelText: '請輸入電子信箱',
+                        labelText: 'Please enter your email address',
                         labelStyle:
                             FlutterFlowTheme.of(context).labelMedium.override(
                                   fontFamily: 'Readex Pro',
@@ -799,7 +799,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                           onPressed: () async {
                             await upimage();
                           },
-                          text: '更新',
+                          text: 'renew',
                           options: FFButtonOptions(
                             width: MediaQuery.sizeOf(context).width * 0.4,
                             height: MediaQuery.sizeOf(context).height * 0.05,
@@ -833,7 +833,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                           onPressed: () async {
                             context.pushNamed('login');
                           },
-                          text: '登出',
+                          text: 'Sign out',
                           options: FFButtonOptions(
                             width: MediaQuery.sizeOf(context).width * 0.4,
                             height: MediaQuery.sizeOf(context).height * 0.05,
@@ -873,7 +873,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                             var Status = "false" ;
                             await setClosedStatus(Status);
                           },
-                          text: '開店',
+                          text: 'Open',
                           options: FFButtonOptions(
                             width: MediaQuery.sizeOf(context).width * 0.4,
                             height: MediaQuery.sizeOf(context).height * 0.05,
@@ -906,7 +906,7 @@ class _SettingWidgetState extends State<SettingWidget> {
                             var Status = "true" ;
                             await setClosedStatus(Status);
                           },
-                          text: '關店',
+                          text: 'Close',
                           options: FFButtonOptions(
                             width: MediaQuery.sizeOf(context).width * 0.4,
                             height: MediaQuery.sizeOf(context).height * 0.05,

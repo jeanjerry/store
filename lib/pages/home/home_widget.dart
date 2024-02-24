@@ -208,7 +208,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                         padding:
                             EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
                         child: Text(
-                          '可接受的餐點訂單',
+                          'Acceptable meal orders',
                           style:
                               FlutterFlowTheme.of(context).labelMedium.override(
                                     fontFamily: 'Readex Pro',
@@ -370,7 +370,7 @@ class Items extends StatelessWidget {
                             Padding(
                               padding: EdgeInsetsDirectional.fromSTEB(0.0, 5.0, 0.0, 0.0),
                               child: AutoSizeText(
-                                '單號 : ' + list![i]["id"],
+                                'Order number: ' + list![i]["id"],
                                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                                   fontFamily: 'Readex Pro',
                                   fontSize: 24.0,
@@ -381,7 +381,7 @@ class Items extends StatelessWidget {
                             Padding(
                               padding: EdgeInsetsDirectional.fromSTEB(160.0, 5.0, 0.0, 0.0),
                               child: AutoSizeText(
-                                '查看更多',
+                                'more',
                                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                                   fontFamily: 'Readex Pro',
                                   fontSize: 24.0,
@@ -406,7 +406,7 @@ class Items extends StatelessWidget {
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             AutoSizeText(
-                              '外送費 : '+ list![i]["fee"]+' ETH',
+                              'Delivery fee: '+ list![i]["fee"]+' ETH',
                               style: FlutterFlowTheme.of(context).bodyMedium.override(
                                 fontFamily: 'Readex Pro',
                                 fontSize: 24.0,
@@ -428,7 +428,7 @@ class Items extends StatelessWidget {
                                 color: Color(0xFFD6D4F9),
                               ),
                               child: AutoSizeText(
-                                '地址 : ' + myList[1],
+                                'address : ' + myList[1],
                                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                                   fontFamily: 'Readex Pro',
                                   fontSize: 24,
@@ -446,7 +446,7 @@ class Items extends StatelessWidget {
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             AutoSizeText(
-                              '備註 : ' + list![i]["note"],
+                              'Remark : ' + list![i]["note"],
                               style: FlutterFlowTheme.of(context).bodyMedium.override(
                                 fontFamily: 'Readex Pro',
                                 fontSize: 24.0,

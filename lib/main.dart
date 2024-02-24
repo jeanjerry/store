@@ -142,7 +142,7 @@ class _NavBarPageState extends State<NavBarPage> {
               Icons.menu_book,
               size: 24.0,
             ),
-            label: '更改菜單',
+            label: 'Change menu',
             tooltip: '',
           ),
           BottomNavigationBarItem(
@@ -150,7 +150,7 @@ class _NavBarPageState extends State<NavBarPage> {
               Icons.home,
               size: 24.0,
             ),
-            label: '新訂單',
+            label: 'new order',
             tooltip: '',
           ),
           BottomNavigationBarItem(
@@ -158,7 +158,7 @@ class _NavBarPageState extends State<NavBarPage> {
               Icons.border_color,
               size: 22.0,
             ),
-            label: '已接訂單',
+            label: 'Order received',
             tooltip: '',
           ),
           BottomNavigationBarItem(
@@ -166,7 +166,7 @@ class _NavBarPageState extends State<NavBarPage> {
               Icons.attach_money_rounded,
               size: 24.0,
             ),
-            label: '錢包',
+            label: 'wallet',
             tooltip: '',
           ),
           BottomNavigationBarItem(
@@ -174,7 +174,7 @@ class _NavBarPageState extends State<NavBarPage> {
               Icons.settings_sharp,
               size: 24.0,
             ),
-            label: '設定',
+            label: 'settings',
             tooltip: '',
           )
         ],

@@ -190,13 +190,13 @@ class _LoginWidgetState extends State<LoginWidget>
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("請選擇圖片"),
+            title: Text("Please select a picture"),
             actions: [
               TextButton(
                 onPressed: () async {
                   Navigator.of(context).pop(); // 关闭选择图片的对话框
                 },
-                child: Text("確定"),
+                child: Text("Sure"),
               ),
             ],
           );
@@ -210,7 +210,7 @@ class _LoginWidgetState extends State<LoginWidget>
       if (FFAppState().imageid.isNotEmpty) {
         await deploy();
         await Dialog();
-        print("創建完成");
+        print("Creation completed");
       }
       //print(uploadImageId);
     }
@@ -224,7 +224,7 @@ class _LoginWidgetState extends State<LoginWidget>
     context: context,
     builder: (alertDialogContext) {
       return AlertDialog(
-        title: Text('創建完成'),
+        title: Text('Creation completed'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(alertDialogContext),
@@ -252,7 +252,7 @@ class _LoginWidgetState extends State<LoginWidget>
           context: context,
           builder: (alertDialogContext) {
             return AlertDialog(
-              title: Text('登入失敗'),
+              title: Text('Login failed'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(alertDialogContext),
@@ -267,7 +267,7 @@ class _LoginWidgetState extends State<LoginWidget>
           context: context,
           builder: (alertDialogContext) {
             return AlertDialog(
-              title: Text('登入成功'),
+              title: Text('sign in suceesfully'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(alertDialogContext),
@@ -444,10 +444,10 @@ class _LoginWidgetState extends State<LoginWidget>
                                       indicatorWeight: 3.0,
                                       tabs: [
                                         Tab(
-                                          text: '創建帳號',
+                                          text: 'create an account',
                                         ),
                                         Tab(
-                                          text: '登入',
+                                          text: 'login',
                                         ),
                                       ],
                                       controller: _model.tabBarController,
@@ -488,7 +488,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                       ),
                                                     ),
                                                   Text(
-                                                    '請輸入店家資訊',
+                                                    'Please enter store information',
                                                     textAlign: TextAlign.start,
                                                     style: FlutterFlowTheme.of(
                                                             context)
@@ -529,7 +529,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
-                                                          labelText: '店名',
+                                                          labelText: 'Store name',
                                                           labelStyle:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -647,7 +647,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
-                                                          labelText: '地址',
+                                                          labelText: 'address',
                                                           labelStyle:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -765,7 +765,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
-                                                          labelText: '電話',
+                                                          labelText: 'Telephone',
                                                           labelStyle:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -882,7 +882,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
-                                                          labelText: '信箱',
+                                                          labelText: 'mail',
                                                           labelStyle:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -999,7 +999,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
-                                                          labelText: '標籤',
+                                                          labelText: 'Label',
                                                           labelStyle:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1117,7 +1117,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
-                                                          labelText: '密碼',
+                                                          labelText: 'password',
                                                           labelStyle:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1222,7 +1222,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                           await _convertAddressToLatLng();
                                                           await driveCreateFolder();
                                                         },
-                                                        text: '創建',
+                                                        text: 'create',
                                                         options:
                                                             FFButtonOptions(
                                                           width:
@@ -1312,7 +1312,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                       ),
                                                     ),
                                                   Text(
-                                                    '請輸入帳號密碼與合約位置',
+                                                    'Please enter your account password and contract location',
                                                     textAlign: TextAlign.start,
                                                     style: FlutterFlowTheme.of(
                                                             context)
@@ -1352,7 +1352,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
-                                                          labelText: '合約位置',
+                                                          labelText: 'contract position',
                                                           labelStyle:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1470,7 +1470,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
-                                                          labelText: '帳號',
+                                                          labelText: 'account number',
                                                           labelStyle:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1589,7 +1589,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                             .passwordVisibility,
                                                         decoration:
                                                             InputDecoration(
-                                                          labelText: '密碼',
+                                                          labelText: 'password',
                                                           labelStyle:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1712,7 +1712,7 @@ class _LoginWidgetState extends State<LoginWidget>
                                                         onPressed: () async {
                                                           await check();
                                                         },
-                                                        text: '登入',
+                                                        text: 'login',
                                                         options:
                                                             FFButtonOptions(
                                                           width:

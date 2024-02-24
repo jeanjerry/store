@@ -144,11 +144,11 @@ class _MenuWidgetState extends State<MenuWidget> {
                         maximumSize: MaterialStateProperty.all(
                             const Size(double.infinity, 60)), // 設定最大尺寸
                       ),
-                      child: const Text('編輯菜單', style: TextStyle(fontSize: 18)),
+                      child: const Text('Edit menu', style: TextStyle(fontSize: 18)),
                     ),
                     const SizedBox(height: 30),
                     const Text(
-                      "當前菜單",
+                      "Current menu",
                       style: TextStyle(fontSize: 32),
                     ),
                     const SizedBox(height: 15),
@@ -156,17 +156,17 @@ class _MenuWidgetState extends State<MenuWidget> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildMenuCategory("單點", mealClassification,
+                          _buildMenuCategory("Single", mealClassification,
                               Colors.red[100]!, Colors.red),
-                          _buildMenuCategory("套餐", comboMealClassification,
+                          _buildMenuCategory("combo", comboMealClassification,
                               Colors.green[100]!, Colors.green),
-                          _buildMenuCategory("選項", optionClassification,
+                          _buildMenuCategory("Options", optionClassification,
                               Colors.blue[100]!, Colors.blue),
                         ],
                       ),
                     if (csvData.isEmpty && !isLoading)
                       const Center(
-                        child: Text("無法讀取店家菜單",
+                        child: Text("Unable to read store menu",
                             style: TextStyle(fontSize: 24, color: Colors.grey)),
                       ),
                   ],

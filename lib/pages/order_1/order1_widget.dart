@@ -108,7 +108,6 @@ class _Order1WidgetState extends State<Order1Widget> {
   getImage() async {   //店家是否準備好餐點
     File filePath1 = File("/data/data/com.mycompany.store/confirm_picture/"+FFAppState().address+"-"+widget.C["id"]+"-"+"取餐照片-0");
     File filePath2 = File("/data/data/com.mycompany.store/confirm_picture/"+FFAppState().address+"-"+widget.C["id"]+"-"+"送達照片-0");
-    print("sadas");
      //Timer.periodic(Duration(seconds: 25), (Timer timer) async {
 
       if ( filePath1.existsSync() &&  filePath2.existsSync()) {
@@ -255,7 +254,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                     clipBehavior: Clip.none,
                     children: [
                       Text(
-                        '訂單詳細資料',
+                        'Order details',
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               fontFamily: 'Readex Pro',
                               fontSize: 25.0,
@@ -287,7 +286,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                               isButtonPressed = true;
                             });
                           },
-                          text: '餐點準備完成',
+                          text: 'Meal preparation is complete',
                           options: FFButtonOptions(
                             width: MediaQuery.sizeOf(context).width * 0.1,
                             height: MediaQuery.sizeOf(context).height * 0.05,
@@ -336,7 +335,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '單號 : '+widget.C['id'],
+                                'Order number: '+widget.C['id'],
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
@@ -346,7 +345,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                                     ),
                               ),
                               Text(
-                                '餐點內容 :',
+                                'Meal content:',
                                 style: FlutterFlowTheme.of(context)
                                     .titleLarge
                                     .override(
@@ -408,7 +407,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             AutoSizeText(
-                                              '外送費 : ',
+                                              'Delivery fee: ',
                                               style:
                                                   FlutterFlowTheme.of(context)
                                                       .titleLarge
@@ -442,7 +441,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                                           .secondaryBackground,
                                     ),
                                     child: AutoSizeText(
-                                      '消費者地址 : '+widget.C['consumer'],
+                                      'Consumer address: '+widget.C['consumer'],
                                       style: FlutterFlowTheme.of(context)
                                           .titleLarge
                                           .override(
@@ -482,7 +481,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '備註',
+                                'Remark',
                                 style: FlutterFlowTheme.of(context).titleLarge,
                               ),
                               Padding(
@@ -520,7 +519,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                             );
                             //context.pushNamed('message');
                           },
-                          text: '聊天室',
+                          text: 'chatroom',
                           options: FFButtonOptions(
                             width: MediaQuery.sizeOf(context).width * 1.0,
                             height: MediaQuery.sizeOf(context).height * 0.06,
@@ -603,7 +602,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                                         alignment:
                                             AlignmentDirectional(0.0, 0.0),
                                         child: Text(
-                                          '檢視外送員位置',
+                                          'View delivery driver location',
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge,
                                         ),
@@ -655,7 +654,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                                           return Padding(
                                             padding: EdgeInsets.all(8.0),
                                             child: Text(
-                                              "外送員已取餐",
+                                              "The delivery man has picked up the meal",
                                               style: TextStyle(
                                                 fontSize: 24,
                                               ),
@@ -666,7 +665,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                                           return Padding(
                                             padding: EdgeInsets.all(8.0),
                                             child: Text(
-                                              "外送員未取餐",
+                                              "The delivery person did not pick up the meal",
                                               style: TextStyle(
                                                 fontSize: 24,
                                               ),
@@ -754,7 +753,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                                           return Padding(
                                             padding: EdgeInsets.all(8.0),
                                             child: Text(
-                                              "外送員已送達",
+                                              "Delivery man has delivered",
                                               style: TextStyle(
                                                 fontSize: 24,
                                               ),
@@ -765,7 +764,7 @@ class _Order1WidgetState extends State<Order1Widget> {
                                           return Padding(
                                             padding: EdgeInsets.all(8.0),
                                             child: Text(
-                                              "外送員未送達",
+                                              "The delivery person did not deliver the goods",
                                               style: TextStyle(
                                                 fontSize: 24,
                                               ),

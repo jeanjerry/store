@@ -145,7 +145,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                         padding:
                             EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
                         child: Text(
-                          '已接訂單',
+                          'Order received',
                           style:
                               FlutterFlowTheme.of(context).labelMedium.override(
                                     fontFamily: 'Readex Pro',
@@ -255,46 +255,46 @@ class Items extends StatelessWidget {
         String str = "";
         getorderStatus()  {
           if(list![i]["orderStatus"]=='0'){
-            str = "等待店家回應";
+            str = "Waiting for store response";
           }
           else if(list![i]["orderStatus"]=='1'){
-            str = "尋找外送員中";
+            str = "Looking for delivery driver";
           }
           else if(list![i]["orderStatus"]=='2'){
-            str = "店家準備中";
+            str = "The store is preparing";
           }
           else if (list![i]["orderStatus"]=='3'){
-            str = "外送員前往取餐";
+            str = "Delivery boy goes to pick up food";
           }
           else if (list![i]["orderStatus"]=='4'){
-            str = "外送員前往送餐";
+            str = "Delivery boy goes to deliver food";
           }
           else if (list![i]["orderStatus"]=='5'){
-            str = "等待消費者確認餐點";
+            str = "Waiting for the customer to confirm the meal";
           }
           else if (list![i]["orderStatus"]=='6'){
-            str = "已送達";
+            str = "arrived";
           }
           else if (list![i]["orderStatus"]=='7'){
-            str = "店家拒絕接單";
+            str = "The store refused to accept the order";
           }
           else if (list![i]["orderStatus"]=='8'){
-            str = "店家超時";
+            str = "Store timeout";
           }
           else if (list![i]["orderStatus"]=='9'){
-            str = "尋找外送員超時";
+            str = "Searching for delivery driver timed out";
           }
           else if (list![i]["orderStatus"]=='10'){
-            str = "店家未完成訂單";
+            str = "The store did not complete the order";
           }
           else if (list![i]["orderStatus"]=='11'){
-            str = "外送員未完成訂單";
+            str = "The delivery boy did not complete the order";
           }
           else if (list![i]["orderStatus"]=='12'){
-            str = "取消訂單";
+            str = "cancel order";
           }
           else if (list![i]["orderStatus"]=='13'){
-            str = "等待消費者確認店家準備時間";
+            str = "Waiting for the customer to confirm the store’s preparation time";
           }
           return str;
         }
@@ -344,7 +344,7 @@ class Items extends StatelessWidget {
                         padding: EdgeInsetsDirectional.fromSTEB(
                             0.0, 5.0, 0.0, 0.0),
                         child: AutoSizeText(
-                          '單號 :' + list![i]["id"],
+                          'Order number:' + list![i]["id"],
                           style: FlutterFlowTheme.of(context)
                               .bodyMedium
                               .override(
@@ -358,7 +358,7 @@ class Items extends StatelessWidget {
                         padding: EdgeInsetsDirectional.fromSTEB(
                             150.0, 5.0, 0.0, 0.0),
                         child: AutoSizeText(
-                          '查看更多',
+                          'more',
                           style: FlutterFlowTheme.of(context)
                               .bodyMedium
                               .override(
@@ -388,7 +388,7 @@ class Items extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       AutoSizeText(
-                        '外送費 : '+ list![i]["fee"]+' ETH',
+                        'Delivery fee: '+ list![i]["fee"]+' ETH',
                         style: FlutterFlowTheme.of(context)
                             .bodyMedium
                             .override(
@@ -412,7 +412,7 @@ class Items extends StatelessWidget {
                           color: Color(0xFFF1FF7E),
                         ),
                         child: AutoSizeText(
-                          '地址 : '+list![i]["consumer"],
+                          'address : '+list![i]["consumer"],
                           style: FlutterFlowTheme.of(context)
                               .bodyMedium
                               .override(
