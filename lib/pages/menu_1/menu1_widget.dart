@@ -89,7 +89,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("編輯菜單"),
+          title: const Text("Edit Menu"),
         ),
         body: Stack(
           children: [
@@ -101,9 +101,9 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildMenuCategory("Single Point", mealClassification,
+                      _buildMenuCategory("Meal", mealClassification,
                           Colors.red[100]!, Colors.red),
-                      _buildMenuCategory("combo", comboMealClassification,
+                      _buildMenuCategory("Combo Meal", comboMealClassification,
                           Colors.green[100]!, Colors.green),
                       _buildMenuCategory("Options", optionClassification,
                           Colors.blue[100]!, Colors.blue),
@@ -645,7 +645,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
   }
 
   removeClassification(String categoryName, String key) {
-    if (categoryName == "Single Point") {
+    if (categoryName == "Meal") {
       // 如果有照片，刪除照片
       for (int i = 0; i < mealClassification[key].length; i++) {
         for (int j = 0; j < mealClassification[key][i].length; j++) {
@@ -655,7 +655,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
         }
       }
       mealClassification.remove(key);
-    } else if (categoryName == "combo") {
+    } else if (categoryName == "Combo Meal") {
       for (int i = 0; i < comboMealClassification[key].length; i++) {
         for (int j = 0; j < comboMealClassification[key][i].length; j++) {
           if (comboMealClassification[key][i][j][6] != "") {
@@ -698,9 +698,9 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                   child: const Text("Cancel")),
               TextButton(
                   onPressed: () {
-                    if (categoryName == "Single Point") {
+                    if (categoryName == "Meal") {
                       mealClassification[classificationName.text] = [];
-                    } else if (categoryName == "combo") {
+                    } else if (categoryName == "Combo Meal") {
                       comboMealClassification[classificationName.text] = [];
                     } else if (categoryName == "Options") {
                       optionClassification[classificationName.text] = [];
@@ -874,7 +874,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                           File(imagePath).copySync("$menuPath/$name");
                         }
                         // 將項目加入到對應的類別中
-                        if (categoryName == "Single Point") {
+                        if (categoryName == "Meal") {
                           setState(() {
                             mealClassification[key].add([
                               [
@@ -888,7 +888,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                               ]
                             ]);
                           });
-                        } else if (categoryName == "combo") {
+                        } else if (categoryName == "Combo Meal") {
                           setState(() {
                             comboMealClassification[key].add([
                               [
@@ -1090,7 +1090,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                               "$menuPath/${categoryClassification[key][index2][0][3]} ${itemOption.text}");
                         }
                         // 將項目加入到對應的類別中
-                        if (categoryName == "Single Point") {
+                        if (categoryName == "Meal") {
                           setStateBottomSheet(
                             () {
                               mealClassification[key][index2].add([
@@ -1105,7 +1105,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
                               ]);
                             },
                           );
-                        } else if (categoryName == "combo") {
+                        } else if (categoryName == "Combo Meal") {
                           setStateBottomSheet(() {
                             comboMealClassification[key][index2].add([
                               2.toString(), // 類別
@@ -1148,7 +1148,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
       File("$menuPath/${categoryClassification[key][index2][index][6]}")
           .deleteSync();
     }
-    if (categoryName == "Single Point") {
+    if (categoryName == "Meal") {
       if (categoryClassification[key][index2].length == 1) {
         mealClassification[key].removeAt(index2);
 
@@ -1159,7 +1159,7 @@ class _Menu1WidgetState extends State<Menu1Widget> {
       if (kDebugMode) {
         print("mealClassification: $mealClassification");
       }
-    } else if (categoryName == "combo") {
+    } else if (categoryName == "Combo Meal") {
       if (categoryClassification[key][index2].length == 1) {
         comboMealClassification[key].removeAt(index2);
 
@@ -1187,13 +1187,13 @@ class _Menu1WidgetState extends State<Menu1Widget> {
 
   checkSameItemName(String categoryName, String key, String value) {
     // 不得輸入已有的項目名稱
-    if (categoryName == "Single Point") {
+    if (categoryName == "Meal") {
       for (int i = 0; i < mealClassification[key].length; i++) {
         if (value == mealClassification[key][i][0][3]) {
           return true;
         }
       }
-    } else if (categoryName == "combo") {
+    } else if (categoryName == "Combo Meal") {
       for (int i = 0; i < comboMealClassification[key].length; i++) {
         if (value == comboMealClassification[key][i][0][3]) {
           return true;
@@ -1212,13 +1212,13 @@ class _Menu1WidgetState extends State<Menu1Widget> {
   checkSameOptionName(
       String categoryName, String key, int index2, String value) {
     // 不得輸入已有的項目名稱
-    if (categoryName == "Single Point") {
+    if (categoryName == "Meal") {
       for (int i = 0; i < mealClassification[key][index2].length; i++) {
         if (value == mealClassification[key][index2][i][4]) {
           return true;
         }
       }
-    } else if (categoryName == "combo") {
+    } else if (categoryName == "Combo Meal") {
       for (int i = 0; i < comboMealClassification[key][index2].length; i++) {
         if (value == comboMealClassification[key][index2][i][4]) {
           return true;

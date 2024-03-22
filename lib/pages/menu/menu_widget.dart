@@ -144,7 +144,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                         maximumSize: MaterialStateProperty.all(
                             const Size(double.infinity, 60)), // 設定最大尺寸
                       ),
-                      child: const Text('Edit menu', style: TextStyle(fontSize: 18)),
+                      child: const Text('Edit Menu', style: TextStyle(fontSize: 18)),
                     ),
                     const SizedBox(height: 30),
                     const Text(
@@ -156,9 +156,9 @@ class _MenuWidgetState extends State<MenuWidget> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildMenuCategory("Single", mealClassification,
+                          _buildMenuCategory("Meal", mealClassification,
                               Colors.red[100]!, Colors.red),
-                          _buildMenuCategory("combo", comboMealClassification,
+                          _buildMenuCategory("Combo Meal", comboMealClassification,
                               Colors.green[100]!, Colors.green),
                           _buildMenuCategory("Options", optionClassification,
                               Colors.blue[100]!, Colors.blue),
